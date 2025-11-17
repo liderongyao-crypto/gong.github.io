@@ -178,21 +178,6 @@
             transform: scale(0.95);
         }
         
-        .history-button {
-            background-color: #f3f4f6;
-            color: #4b5563;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        
-        .history-button:hover {
-            background-color: #e5e7eb;
-            transform: scale(1.05);
-        }
-        
-        .history-button:active {
-            transform: scale(0.95);
-        }
-        
         .restart-button {
             background-color: #0071e3;
             color: white;
@@ -350,14 +335,11 @@
                 
                 <p class="recording-time" id="recording-time" style="display: none;">录音时间: 0.0秒</p>
                 
-                <div class="buttons-container">
-                    <button id="main-button" class="start-button">
-                        <i class="fas fa-microphone"></i>开始
-                    </button>
-                    <button id="history-button" class="history-button">
-                        <i class="fas fa-history"></i>历史
-                    </button>
-                </div>
+            <div class="buttons-container">
+                <button id="main-button" class="start-button">
+                    <i class="fas fa-microphone"></i>开始
+                </button>
+            </div>
             </div>
             
             <!-- 结果界面 -->
@@ -401,7 +383,7 @@
         const volumeBars = document.querySelectorAll('.volume-bar');
         const recordingTime = document.getElementById('recording-time');
         const mainButton = document.getElementById('main-button');
-        const historyButton = document.getElementById('history-button');
+        
         const restartButton = document.getElementById('restart-button');
         const recordingInterface = document.getElementById('recording-interface');
         const resultInterface = document.getElementById('result-interface');
@@ -581,8 +563,7 @@
             
             // 将音量归一化到 0-1 范围
             const normalizedVolume = isNaN(average) ? 0 : average / 255;
-            // 确保音量值有效（非NaN）并在0-1范围内
-            volume = Math.max(0, Math.min(1, normalizedVolume));
+            // 确保音量值有效（非NaN）并在0-1范围内volume = Math.max(0, Math.min(1, normalizedVolume));
             
             // 更新UI
             setVolumeIndicator(volume);
@@ -728,13 +709,11 @@
         
         restartButton.addEventListener('click', showRecordingInterface);
         
-        historyButton.addEventListener('click', function() {
-            alert('历史记录功能即将上线');
-        });
-        
         // 初始化
         updateTreeSize(0.2); // 初始为最小大小
         updatePhaseText();
     </script>
+</body>
+</html>
 </body>
 </html>

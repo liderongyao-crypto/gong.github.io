@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>早读录音助手 - 一人公司</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous">
+    <style>
+        /* 全局样式 */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+            background-color: #f5f5f7;
+            color: #1d1d1f;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            overflow-x: hidden;
+        }
+        
+        /* 主容器 */
+        .container {
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+        
+        /* 标题样式 */
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 8px;
+        }
+        
+        .subtitle {
+            color: #86868b;
+            margin-bottom: 40px;
+        }
+        
+        /* 树容器 */
+        .tree-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+        }
+        
+        /* 树图片 */
+        .tree-image {
+            max-height: 300px;
+            object-contain;
+            transition: transform 0.5s ease-out;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+        }
+        
+        /* 背景装饰 */
+        .background-ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid rgba(52, 199, 89, 0.3);
+            transform-origin: center bottom;
+            pointer-events: none;
+        }
+        
+        /* 阶段文本 */
+        .phase-text {
+            font-size: 1.25rem;
+            font-weight: 500;
+            color: #1d1d1f;
+            margin-top: 24px;
+            padding: 0 16px;
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        /* 音量指示器 */
+        .volume-indicator {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 16px;
+        }
+        
+        .volume-icon {
+            font-size: 1.5rem;
+            color: #34c759;
+            margin-bottom: 8px;
+            animation: pulse 1s infinite ease-in-out;
+        }
+        
+        .volume-bars {
+            display: flex;
+            gap: 4px;
+            justify-content: center;
+            width: 100%;
+            max-width: 120px;
+        }
+        
+        .volume-bar {
+            width: 8px;
+            border-radius: 4px;
+            background-color: #d1d5db;
+            transition: height 0.2s ease, background-color 0.2s ease, opacity 0.2s ease;
+        }
+        
+        .volume-percentage {
+            margin-top: 8px;
+            font-size: 0.875rem;
+            color: #34c759;
+        }
+        
+        /* 录音时间 */
+        .recording-time {
+            margin-top: 24px;
+            color: #86868b;
+            font-size: 1.125rem;
+        }
+        
+        /* 按钮容器 */
+        .buttons-container {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 48px;
+        }
+        
+        /* 按钮样式 */
+        button {
+            padding: 12px 32px;
+            border: none;
+            border-radius: 9999px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .start-button {
+            background-color: #0071e3;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0, 113, 227, 0.3);
+        }
+        
+        .start-button:hover {
+            background-color: #0064cc;
+            transform: scale(1.05);
+        }
+        
+        .start-button:active {
+            transform: scale(0.95);
+        }
+        
+        .stop-button {
+            background-color: #ff3b30;
+            color: white;
+            box-shadow: 0 4px 6px rgba(255, 59, 48, 0.3);
+        }
+        
+        .stop-button:hover {
+            background-color: #d32f2f;
+            transform: scale(1.05);
+        }
+        
+        .stop-button:active {
+            transform: scale(0.95);
+        }
+        
+        .restart-button {
+            background-color: #0071e3;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0, 113, 227, 0.3);
+            margin-top: 24px;
+        }
+        
+        .restart-button:hover {
+            background-color: #0064cc;
+            transform: scale(1.05);
+        }
+        
+        .restart-button:active {
+            transform: scale(0.95);
+        }
+        
+        /* 结果面板 */
+        .result-panel {
+            background-color: white;
+            padding: 32px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            margin-top: 32px;
+            transition: transform 0.3s ease;
+        }
+        
+        .result-panel:hover {
+            transform: scale(1.02);
+        }
+        
+        .result-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 24px;
+        }
+        
+        .duration-label {
+            font-size: 1rem;
+            color: #6b7280;
+            margin-bottom: 16px;
+        }
+        
+        .duration-value {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #0071e3;
+        }
+        
+        /* 页脚 */
+        footer {
+            margin-top: auto;
+            padding: 32px 0;
+            font-size: 0.875rem;
+            color: #86868b;
+            text-align: center;
+        }
+        
+        /* 动画 */
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+        
+        @keyframes ringPulse1 {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.7;
+            }
+            50% {
+                transform: scale(1.02);
+                opacity: 0.7;
+            }
+        }
+        
+        @keyframes ringPulse2 {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+            50% {
+                transform: scale(1.05);
+                opacity: 0.5;
+            }
+        }
+        
+        @keyframes phaseTextPulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.02);
+            }
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 640px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .buttons-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            button {
+                width: 200px;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>早读助手</h1>
+        <p class="subtitle">点击开始按钮，记录学生的朗读声音</p>
+        
+        <div id="main-content">
+            <!-- 录音界面 -->
+            <div id="recording-interface">
+                <div class="tree-container">
+                    <div id="background-rings">
+                        <div class="background-ring ring1"></div>
+                        <div class="background-ring ring2"></div>
+                    </div>
+                    <img 
+                        src="https://lf-code-agent.coze.cn/obj/x-ai-cn/331838196482/attachment/小六壬解释 (1)_20251117200510.png" 
+                        alt="Tree" 
+                        class="tree-image"
+                        id="tree-image"
+                    >
+                    <p class="phase-text" id="phase-text">准备开始</p>
+                    
+                    <div class="volume-indicator" id="volume-indicator" style="display: none;">
+                        <div class="volume-icon">
+                            <i class="fas fa-volume" id="volume-icon"></i>
+                        </div>
+                        <div class="volume-bars">
+                            <div class="volume-bar"></div>
+                            <div class="volume-bar"></div>
+                            <div class="volume-bar"></div>
+                            <div class="volume-bar"></div>
+                            <div class="volume-bar"></div>
+                            <div class="volume-bar"></div>
+                            <div class="volume-bar"></div>
+                        </div>
+                        <p class="volume-percentage" id="volume-percentage">0%</p>
+                    </div>
+                </div>
+                
+                <p class="recording-time" id="recording-time" style="display: none;">录音时间: 0.0秒</p>
+                
+            <div class="buttons-container">
+                <button id="main-button" class="start-button">
+                    <i class="fas fa-microphone"></i>开始
+                </button>
+            </div>
+            </div>
+            
+            <!-- 结果界面 -->
+            <div id="result-interface" style="display: none;">
+                <div class="tree-container">
+                    <img 
+                        src="https://lf-code-agent.coze.cn/obj/x-ai-cn/331838196482/attachment/小六壬解释 (1)_20251117200510.png" 
+                        alt="Tree" 
+                        class="tree-image"
+                        id="result-tree-image"
+                    >
+                    <p class="phase-text">录音已结束</p>
+                </div>
+                
+                <h2 class="result-title">录音结果</h2>
+                
+                <div class="result-panel">
+                    <p class="duration-label">总朗读时长</p>
+                    <p class="duration-value" id="duration-value">0秒</p>
+                </div>
+                
+                <button id="restart-button" class="restart-button">
+                    <i class="fas fa-redo"></i>重新开始
+                </button>
+            </div>
+        </div>
+        
+        <footer>
+            <p>品牌：一人公司 | 设计人：宫 | 微信：2404086660 | 官网：www.opc1.cc</p>
+        </footer>
+    </div>
+
+    <script>
+        // DOM 元素
+        const treeImage = document.getElementById('tree-image');
+        const resultTreeImage = document.getElementById('result-tree-image');
+        const phaseText = document.getElementById('phase-text');
+        const volumeIndicator = document.getElementById('volume-indicator');
+        const volumeIcon = document.getElementById('volume-icon');
+        const volumePercentage = document.getElementById('volume-percentage');
+        const volumeBars = document.querySelectorAll('.volume-bar');
+        const recordingTime = document.getElementById('recording-time');
+        const mainButton = document.getElementById('main-button');
+        
+        const restartButton = document.getElementById('restart-button');
+        const recordingInterface = document.getElementById('recording-interface');
+        const resultInterface = document.getElementById('result-interface');
+        const durationValue = document.getElementById('duration-value');
+        const backgroundRings = document.getElementById('background-rings');
+        const ring1 = document.querySelector('.ring1');
+        const ring2 = document.querySelector('.ring2');
+        
+        // 状态变量
+        let isRecording = false;
+        let recordingTimeCounter = 0;
+        let startTime = 0;
+        let timerInterval = null;
+        let volume = 0;
+        let finalVolume = 0;
+        let savedRecordingTime = 0;
+        
+        // 音频相关
+        let mediaRecorder = null;
+        let audioContext = null;
+        let analyser = null;
+        let microphone = null;
+        let dataArray = null;
+        let animationFrame = 0;
+        
+        // 计算树的缩放比例
+        function calculateTreeScale(recordingTime, volumeValue) {
+            // 时间因素 (0-100)
+            const timeScore = Math.min(recordingTime * 5, 100);
+            
+            // 音量因素 (0-100)
+            const volumeScore = volumeValue * 100;
+            
+            // 综合得分 (0-1)
+            const score = (timeScore * 0.6 + volumeScore * 0.4) / 100;
+            
+            // 最小缩放比例为0.2，最大为1.0
+            return 0.2 + (score * 0.8);
+        }
+        
+        // 更新树的大小
+        function updateTreeSize(scale) {
+            if (treeImage) {
+                treeImage.style.transform = `scale(${scale})`;
+            }
+            if (resultTreeImage) {
+                resultTreeImage.style.transform = `scale(${scale})`;
+            }
+        }
+        
+        // 更新背景环
+        function updateBackgroundRings(scale) {
+            if (ring1 && ring2) {
+                ring1.style.width = `${250 * scale}px`;
+                ring1.style.height = `${300 * scale}px`;
+                ring2.style.width = `${300 * scale}px`;
+                ring2.style.height = `${350 * scale}px`;
+            }
+        }
+        
+        // 获取当前阶段
+        function getCurrentPhase() {
+            if (!isRecording) return 0;
+            
+            if (recordingTimeCounter < 5) return 1;
+            if (recordingTimeCounter < 10) return 2;
+            if (recordingTimeCounter < 15) return 3;
+            if (recordingTimeCounter < 20) return 4;
+            
+            return 5;
+        }
+        
+        // 获取阶段文本
+        function getPhaseText() {
+            const phase = getCurrentPhase();
+            const phaseTexts = ["准备开始", "开始朗读吧", "声音再大一点", "非常好！", "继续保持", "加油！"];
+            return phaseTexts[phase];
+        }
+        
+        // 更新阶段文本
+        function updatePhaseText() {
+            if (phaseText) {
+                phaseText.textContent = getPhaseText();
+                
+                // 添加动画
+                if (isRecording) {
+                    phaseText.style.animation = 'phaseTextPulse 2s infinite ease-in-out';
+                } else {
+                    phaseText.style.animation = 'none';
+                }
+            }
+        }
+        
+        // 格式化时间
+        function formatDuration(seconds) {
+            if (isNaN(seconds) || seconds < 0) return "0秒";
+            
+            const validSeconds = Math.max(0, seconds);
+            
+            if (validSeconds < 60) {
+                return `${validSeconds.toFixed(1)}秒`;
+            } else {
+                const minutes = Math.floor(validSeconds / 60);
+                const remainingSeconds = validSeconds % 60;
+                return `${minutes}分${remainingSeconds.toFixed(0)}秒`;
+            }
+        }
+        
+        // 设置音量指示器
+        function setVolumeIndicator(volumeValue) {
+            if (volumePercentage) {
+                volumePercentage.textContent = `${Math.round(volumeValue * 100)}%`;
+            }
+            
+            // 更新音量图标
+            if (volumeIcon) {
+                volumeIcon.className = 'fas ';
+                if (volumeValue < 0.33) {
+                    volumeIcon.classList.add('fa-volume-down');
+                } else if (volumeValue < 0.66) {
+                    volumeIcon.classList.add('fa-volume');
+                } else {
+                    volumeIcon.classList.add('fa-volume-up');
+                }
+            }
+            
+            // 更新音量条
+            volumeBars.forEach((bar, index) => {
+                if (volumeValue > index * (1/7)) {
+                    bar.style.height = `${(index + 1) * 6 + volumeValue * 15}px`;
+                    bar.style.backgroundColor = '#34c759';
+                    bar.style.opacity = '1';
+                } else {
+                    bar.style.height = '4px';
+                    bar.style.backgroundColor = '#d1d5db';
+                    bar.style.opacity = '0.3';
+                }
+            });
+        }
+        
+        // 设置音频分析器
+        function setupAnalyser(stream) {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 256;
+                
+                const bufferLength = analyser.frequencyBinCount;
+                dataArray = new Uint8Array(bufferLength);
+                
+                microphone = audioContext.createMediaStreamSource(stream);
+                microphone.connect(analyser);
+                
+                // 开始分析音频
+                analyzeAudio();
+            } catch (error) {
+                console.error('音频分析器设置失败:', error);
+                alert('无法初始化音频分析，请检查浏览器权限');
+            }
+        }
+        
+        // 分析音频
+        function analyzeAudio() {
+            if (!analyser || !dataArray) return;
+            
+            analyser.getByteFrequencyData(dataArray);
+            
+            // 计算平均音量
+            let sum = 0;
+            for (let i = 0; i < dataArray.length; i++) {
+                sum += dataArray[i];
+            }
+            
+            // 确保分母不为0
+            const arrayLength = Math.max(1, dataArray.length);
+            const average = sum / arrayLength;
+            
+            // 将音量归一化到 0-1 范围
+            const normalizedVolume = isNaN(average) ? 0 : average / 255;
+            // 确保音量值有效（非NaN）并在0-1范围内
+            volume = Math.max(0, Math.min(1, normalizedVolume));
+            
+            // 更新UI
+            setVolumeIndicator(volume);
+            const currentScale = calculateTreeScale(recordingTimeCounter, volume);
+            updateTreeSize(currentScale);
+            updateBackgroundRings(currentScale);
+            
+            animationFrame = requestAnimationFrame(analyzeAudio);
+        }
+        
+        // 开始录音
+        async function startRecording() {
+            try {
+                // 请求麦克风权限
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: { 
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true
+                    } 
+                });
+                
+                // 设置 MediaRecorder
+                mediaRecorder = new MediaRecorder(stream);
+                
+                // 设置音频分析器（用于获取音量）
+                setupAnalyser(stream);
+                
+                // 开始录音
+                mediaRecorder.start();
+                isRecording = true;
+                
+                // 更新UI
+                mainButton.innerHTML = '<i class="fas fa-stop"></i>停止';
+                mainButton.classList.remove('start-button');
+                mainButton.classList.add('stop-button');
+                recordingTime.style.display = 'block';
+                volumeIndicator.style.display = 'block';
+                backgroundRings.style.display = 'block';
+                
+                // 添加动画
+                ring1.style.animation = 'ringPulse1 2s infinite ease-in-out';
+                ring2.style.animation = 'ringPulse2 3s infinite ease-in-out 0.5s';
+                
+                // 记录开始时间
+                startTime = Date.now();
+                
+                // 启动计时器更新录音时间
+                timerInterval = setInterval(() => {
+                    recordingTimeCounter = (Date.now() - startTime) / 1000;
+                    recordingTime.textContent = `录音时间: ${recordingTimeCounter.toFixed(1)}秒`;
+                    updatePhaseText();
+                }, 50); // 每50ms更新一次
+                
+            } catch (error) {
+                console.error('录音开始失败:', error);
+                alert('无法访问麦克风，请检查浏览器权限设置');
+                stopRecording();
+            }
+        }
+        
+        // 停止录音
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                // 计算最终精确时长
+                recordingTimeCounter = (Date.now() - startTime) / 1000;
+                savedRecordingTime = recordingTimeCounter;
+                
+                // 保存最终音量值
+                finalVolume = volume;
+                
+                mediaRecorder.stop();
+                
+                // 清理资源
+                if (animationFrame) {
+                    cancelAnimationFrame(animationFrame);
+                }
+                
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                }
+                
+                if (audioContext) {
+                    audioContext.close();
+                }
+                
+                isRecording = false;
+                
+                // 更新UI
+                mainButton.innerHTML = '<i class="fas fa-microphone"></i>开始';
+                mainButton.classList.remove('stop-button');
+                mainButton.classList.add('start-button');
+                recordingTime.style.display = 'none';
+                volumeIndicator.style.display = 'none';
+                backgroundRings.style.display = 'none';
+                
+                // 移除动画
+                ring1.style.animation = 'none';
+                ring2.style.animation = 'none';
+                phaseText.style.animation = 'none';
+                
+                // 显示结果界面
+                showResultPanel();
+            }
+        }
+        
+        // 显示结果面板
+        function showResultPanel() {
+            recordingInterface.style.display = 'none';
+            resultInterface.style.display = 'block';
+            
+            // 设置结果界面的树大小
+            const resultScale = calculateTreeScale(savedRecordingTime, finalVolume);
+            updateTreeSize(resultScale);
+            
+            // 设置时长显示
+            durationValue.textContent = formatDuration(savedRecordingTime);
+        }
+        
+        // 返回录音界面
+        function showRecordingInterface() {
+            resultInterface.style.display = 'none';
+            recordingInterface.style.display = 'block';
+            
+            // 重置状态
+            recordingTimeCounter = 0;
+            volume = 0;
+            finalVolume = 0;
+            
+            // 重置UI
+            updateTreeSize(0.2); // 重置为最小大小
+            updatePhaseText();
+        }
+        
+        // 事件监听器
+        mainButton.addEventListener('click', function() {
+            if (isRecording) {
+                stopRecording();
+            } else {
+                startRecording();
+            }
+        });
+        
+        restartButton.addEventListener('click', showRecordingInterface);
+        
+        // 初始化
+        updateTreeSize(0.2); // 初始为最小大小
+        updatePhaseText();
+    </script>
+</body>
+</html>

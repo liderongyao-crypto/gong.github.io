@@ -1,7 +1,7 @@
 import { Routes, Route } from "react-router-dom";
-import Home from "@/pages/Home";
+import Home from "./pages/Home";
 import { useState } from "react";
-import { AuthContext } from '@/contexts/authContext';
+import { AuthContext } from './contexts/authContext';
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);

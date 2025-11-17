@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { RecorderBall } from '@/components/RecorderBall';
-import { useAudioRecorder } from '@/hooks/useAudioRecorder';
+import { RecorderBall } from '../components/RecorderBall';
+import { useAudioRecorder } from '../hooks/useAudioRecorder';
 
 export default function Home() {
   const [isRecording, setIsRecording] = useState(false);

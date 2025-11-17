@@ -12,12 +12,13 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   
-  /* 自定义主题色彩 */
+   /* 自定义主题色彩 */
   --color-primary: #0071e3;
   --color-secondary: #34c759;
   --color-accent: #ff9500;
   --color-background: #f5f5f7;
   --color-text: #1d1d1f;
+  --color-brand: #0071e3;
 }
 
 /* 全局重置和基础样式 */

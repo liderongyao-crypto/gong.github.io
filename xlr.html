@@ -7,170 +7,229 @@
     <script src="https://cdn.tailwindcss.com/3.3.3"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <style>
+        /* 基础样式 */
         body {
-            font-family: 'Noto Sans SC', sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
-            color: #2d3748;
+            font-family: -apple-system, BlinkMacSystemFont, 'Arial', 'Helvetica Neue', sans-serif;
+            background-color: #ffffff;
+            color: #333333;
+            line-height: 1.6;
             overflow-x: hidden;
         }
-
-        .glassmorphism {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-        }
-
-        .card-hover {
-            transition: all 0.3s ease;
-        }
-
-        .card-hover:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 28px 0 rgba(31, 38, 135, 0.2);
-        }
-
-        .highlight-text {
-            position: relative;
-            display: inline-block;
-        }
-
-        .highlight-text::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 10px;
-            background-color: rgba(99, 102, 241, 0.2);
-            z-index: -1;
-        }
-
-        .result-card {
-            transition: all 0.3s ease;
-            border-radius: 12px;
-            overflow: hidden;
-        }
-
-        .result-card:hover {
-            transform: scale(1.02);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-        }
-
+        
+        /* 输入框样式 */
         .input-field {
-            transition: all 0.3s ease;
-        }
-
-        .input-field:focus {
-            border-color: #4f46e5;
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-        }
-
-        .btn-submit {
-            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-            transition: all 0.3s ease;
-        }
-
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.5);
-        }
-
-        .btn-submit:active {
-            transform: translateY(0);
-        }
-
-        .shadow-glow {
-            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.5);
-        }
-
-        .divider {
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.3), transparent);
-        }
-
-        .animated-bg {
-            position: absolute;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 16px;
+            transition: all 0.2s ease;
             width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            z-index: -1;
-            background-image: 
-                radial-gradient(circle at 25% 25%, rgba(255, 105, 180, 0.05) 0%, transparent 50%),
-                radial-gradient(circle at 75% 75%, rgba(79, 70, 229, 0.05) 0%, transparent 50%);
         }
         
-        .method-step {
+        .input-field:focus {
+            border-color: #0071e3;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
+        }
+        
+        /* 按钮样式 */
+        .btn-submit {
+            background-color: #0071e3;
+            color: white;
+            border-radius: 8px;
+            padding: 10px 24px;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-submit:hover {
+            background-color: #0063cc;
+        }
+        
+        .btn-submit:active {
+            background-color: #0052a3;
+        }
+        
+        .btn-secondary {
+            background-color: #f5f5f7;
+            color: #333333;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #e9e9eb;
+        }
+        
+        /* 卡片样式 */
+        .card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
         }
         
-        .method-step:hover {
-            background-color: rgba(99, 102, 241, 0.05);
-            transform: translateX(5px);
+        .card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* 结果卡片样式 */
+        .result-card {
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+        
+        .result-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* 导航栏样式 */
+        .nav {
+            padding: 16px 0;
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        /* 页脚样式 */
+        .footer {
+            border-top: 1px solid #f0f0f0;
+            padding: 24px 0;
+            margin-top: 48px;
+        }
+        
+        /* 错误提示样式 */
+        .error-message {
+            color: #ff3b30;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+        
+        /* 神煞颜色样式 */
+        .da-an { background-color: #007aff; }
+        .liu-lian { background-color: #5856d6; }
+        .su-xi { background-color: #34c759; }
+        .chi-kou { background-color: #ff3b30; }
+        .xiao-ji { background-color: #ffcc00; }
+        .kong-wang { background-color: #8e8e93; }
+        
+        .da-an-bg { background-color: #f2f9ff; }
+        .liu-lian-bg { background-color: #f2f2ff; }
+        .su-xi-bg { background-color: #f2fff2; }
+        .chi-kou-bg { background-color: #fff2f2; }
+        .xiao-ji-bg { background-color: #fffff2; }
+        .kong-wang-bg { background-color: #f2f2f2; }
+        
+        .da-an-text { color: #007aff; }
+        .liu-lian-text { color: #5856d6; }
+        .su-xi-text { color: #34c759; }
+        .chi-kou-text { color: #ff3b30; }
+        .xiao-ji-text { color: #ffcc00; }
+        .kong-wang-text { color: #8e8e93; }
+        
+        /* 箭头连接线样式 */
+        .arrow-connector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #d1d5db;
+            margin: 0 8px;
+        }
+        
+        /* 结果容器样式 */
+        .results-container {
+            display: flex;
+            align-items: stretch;
+            justify-content: space-between;
+            width: 100%;
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 767px) {
+            .results-container {
+                flex-direction: column;
+            }
+            
+            .arrow-connector {
+                transform: rotate(90deg);
+                margin: 12px 0;
+            }
         }
     </style>
 </head>
-<body class="min-h-screen relative">
-    <div class="animated-bg"></div>
-
+<body class="min-h-screen">
     <!-- 导航条 -->
-    <nav class="glassmorphism sticky top-0 z-50 p-4 mb-8">
-        <div class="container mx-auto flex items-center justify-between">
-            <div class="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 text-transparent bg-clip-text">
-                <i class="fas fa-chart-pie mr-2"></i>宫的小六壬
+    <nav class="nav">
+        <div class="container mx-auto px-4 md:px-8 flex items-center justify-between">
+            <div class="text-xl font-medium">
+                <i class="fas fa-chart-pie mr-2 text-gray-600"></i>宫的小六壬
             </div>
         </div>
     </nav>
 
     <!-- 头部横幅 -->
-    <header class="container mx-auto py-12 px-4 md:px-8 relative">
-        <div class="max-w-4xl mx-auto text-center">
-            <h1 class="text-3xl md:text-4xl font-bold mb-4">宫的小六壬</h1>
-            <p class="text-lg text-gray-600 mb-8">你如果遇到小困难，不妨输入三个数字测一测</p>
+    <header class="container mx-auto py-20 px-4 md:px-8 text-center">
+        <div class="max-w-3xl mx-auto">
+            <h1 class="text-4xl md:text-5xl font-semibold mb-6">宫的小六壬</h1>
+            <p class="text-xl text-gray-600 mb-8">你如果遇到小困难，不妨输入三个数字测一测</p>
         </div>
     </header>
 
     <!-- 主要内容 -->
     <main class="container mx-auto py-8 px-4 md:px-8">
         <!-- 输入区域 -->
-        <div class="glassmorphism p-8 mb-12">
-            <h2 class="text-2xl font-bold mb-6 flex items-center">
-                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 flex items-center justify-center text-white mr-3">
+        <div class="card p-8 md:p-12 max-w-4xl mx-auto mb-16">
+            <h2 class="text-2xl font-semibold mb-8 flex items-center">
+                <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-700 mr-3">
                     <i class="fas fa-calculator"></i>
                 </div>
                 占卜输入
             </h2>
             
-            <form id="divinationForm" class="space-y-6">
+            <form id="divinationForm" class="space-y-8">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="space-y-2">
                         <label for="num1" class="block text-sm font-medium text-gray-700">第一个数字 (1-12)</label>
-                        <input type="number" id="num1" name="num1" min="1" max="12" class="input-field w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="输入1-12之间的整数" required>
-                        <p id="error1" class="text-red-500 text-xs hidden">请输入1-12之间的整数</p>
+                        <input type="number" id="num1" name="num1" min="1" max="12" class="input-field" placeholder="输入1-12之间的整数" required>
+                        <p id="error1" class="error-message hidden">请输入1-12之间的整数</p>
                     </div>
                     <div class="space-y-2">
                         <label for="num2" class="block text-sm font-medium text-gray-700">第二个数字 (1-12)</label>
-                        <input type="number" id="num2" name="num2" min="1" max="12" class="input-field w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="输入1-12之间的整数" required>
-                        <p id="error2" class="text-red-500 text-xs hidden">请输入1-12之间的整数</p>
+                        <input type="number" id="num2" name="num2" min="1" max="12" class="input-field" placeholder="输入1-12之间的整数" required>
+                        <p id="error2" class="error-message hidden">请输入1-12之间的整数</p>
                     </div>
                     <div class="space-y-2">
                         <label for="num3" class="block text-sm font-medium text-gray-700">第三个数字 (1-12)</label>
-                        <input type="number" id="num3" name="num3" min="1" max="12" class="input-field w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="输入1-12之间的整数" required>
-                        <p id="error3" class="text-red-500 text-xs hidden">请输入1-12之间的整数</p>
+                        <input type="number" id="num3" name="num3" min="1" max="12" class="input-field" placeholder="输入1-12之间的整数" required>
+                        <p id="error3" class="error-message hidden">请输入1-12之间的整数</p>
                     </div>
                 </div>
                 
-                <!-- 新增问事内容输入框 -->
+                <!-- 问事内容输入框 -->
                 <div class="space-y-2">
                     <label for="question" class="block text-sm font-medium text-gray-700">问事内容</label>
-                    <textarea id="question" name="question" rows="3" class="input-field w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="请输入您想询问的事情，如："近期财运如何？"、"感情发展状况"等" required></textarea>
-                    <p id="errorQuestion" class="text-red-500 text-xs hidden">请输入问事内容</p>
+                    <textarea id="question" name="question" rows="3" class="input-field" placeholder="请输入您想询问的事情，如："近期财运如何？"、"感情发展状况"等" required></textarea>
+                    <p id="errorQuestion" class="error-message hidden">请输入问事内容</p>
                 </div>
                 
-                <div class="flex justify-center">
-                    <button type="submit" class="btn-submit text-white font-medium py-3 px-8 rounded-lg flex items-center">
+                <div class="flex justify-center pt-4">
+                    <button type="submit" class="btn-submit flex items-center">
                         <i class="fas fa-magic mr-2"></i>开始占卜
                     </button>
                 </div>
@@ -178,34 +237,47 @@
         </div>
 
         <!-- 结果显示区域 -->
-        <div id="resultArea" class="glassmorphism p-8 hidden">
-            <h2 class="text-2xl font-bold mb-6 flex items-center">
-                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 flex items-center justify-center text-white mr-3">
+        <div id="resultArea" class="card p-8 md:p-12 max-w-4xl mx-auto hidden">
+            <h2 class="text-2xl font-semibold mb-8 flex items-center">
+                <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-700 mr-3">
                     <i class="fas fa-scroll"></i>
                 </div>
                 占卜结果
             </h2>
             
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div id="result1" class="result-card p-6 flex flex-col items-center justify-center text-center">
+            <!-- 横向排列的结果容器 -->
+            <div class="results-container mb-10">
+                <div id="result1" class="result-card flex flex-col items-center justify-center">
                     <div class="w-16 h-16 rounded-full flex items-center justify-center mb-4 text-white text-xl font-bold"></div>
-                    <h3 class="text-xl font-bold mb-2"></h3>
+                    <h3 class="text-xl font-semibold mb-2"></h3>
                     <p class="text-gray-600"></p>
                 </div>
-                <div id="result2" class="result-card p-6 flex flex-col items-center justify-center text-center">
+                
+                <!-- 第一个箭头 -->
+                <div class="arrow-connector">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+                
+                <div id="result2" class="result-card flex flex-col items-center justify-center">
                     <div class="w-16 h-16 rounded-full flex items-center justify-center mb-4 text-white text-xl font-bold"></div>
-                    <h3 class="text-xl font-bold mb-2"></h3>
+                    <h3 class="text-xl font-semibold mb-2"></h3>
                     <p class="text-gray-600"></p>
                 </div>
-                <div id="result3" class="result-card p-6 flex flex-col items-center justify-center text-center">
+                
+                <!-- 第二个箭头 -->
+                <div class="arrow-connector">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+                
+                <div id="result3" class="result-card flex flex-col items-center justify-center">
                     <div class="w-16 h-16 rounded-full flex items-center justify-center mb-4 text-white text-xl font-bold"></div>
-                    <h3 class="text-xl font-bold mb-2"></h3>
+                    <h3 class="text-xl font-semibold mb-2"></h3>
                     <p class="text-gray-600"></p>
                 </div>
             </div>
             
             <div class="text-center">
-                <button id="resetButton" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-6 rounded-lg transition-colors">
+                <button id="resetButton" class="btn-secondary flex items-center mx-auto">
                     <i class="fas fa-redo-alt mr-2"></i>重新占卜
                 </button>
             </div>
@@ -213,11 +285,12 @@
     </main>
 
     <!-- 页脚 -->
-    <footer class="container mx-auto py-8 px-4 md:px-8 mt-12">
-        <div class="divider mb-6"></div>
-        <div class="text-center text-gray-500 text-sm">
-            <p>created by <a href="https://space.coze.cn" class="text-indigo-600 hover:underline">coze space</a></p>
-            <p class="mt-2">页面内容均由 AI 生成，仅供参考</p>
+    <footer class="footer">
+        <div class="container mx-auto px-4 md:px-8">
+            <div class="text-center text-gray-500 text-sm">
+                <p>created by <a href="https://space.coze.cn" class="text-blue-600 hover:underline">coze space</a></p>
+                <p class="mt-2">页面内容均由 AI 生成，仅供参考</p>
+            </div>
         </div>
     </footer>
 
@@ -225,12 +298,12 @@
         document.addEventListener('DOMContentLoaded', function() {
             // 神煞数据
             const divinationData = {
-                1: { name: '大安', meaning: '静止吉祥，凡事可成', color: 'bg-blue-500', bgColor: 'bg-blue-50', textColor: 'text-blue-700' },
-                2: { name: '留连', meaning: '拖延纠缠，办事不利', color: 'bg-purple-500', bgColor: 'bg-purple-50', textColor: 'text-purple-700' },
-                3: { name: '速喜', meaning: '喜庆快速，吉事将至', color: 'bg-green-500', bgColor: 'bg-green-50', textColor: 'text-green-700' },
-                4: { name: '赤口', meaning: '口舌凶险，需防是非', color: 'bg-red-500', bgColor: 'bg-red-50', textColor: 'text-red-700' },
-                5: { name: '小吉', meaning: '和合吉利，运势顺畅', color: 'bg-yellow-500', bgColor: 'bg-yellow-50', textColor: 'text-yellow-700' },
-                6: { name: '空亡', meaning: '虚妄无果，谋事难成', color: 'bg-gray-500', bgColor: 'bg-gray-50', textColor: 'text-gray-700' }
+                1: { name: '大安', meaning: '静止吉祥，凡事可成', color: 'da-an', bgColor: 'da-an-bg', textColor: 'da-an-text' },
+                2: { name: '留连', meaning: '拖延纠缠，办事不利', color: 'liu-lian', bgColor: 'liu-lian-bg', textColor: 'liu-lian-text' },
+                3: { name: '速喜', meaning: '喜庆快速，吉事将至', color: 'su-xi', bgColor: 'su-xi-bg', textColor: 'su-xi-text' },
+                4: { name: '赤口', meaning: '口舌凶险，需防是非', color: 'chi-kou', bgColor: 'chi-kou-bg', textColor: 'chi-kou-text' },
+                5: { name: '小吉', meaning: '和合吉利，运势顺畅', color: 'xiao-ji', bgColor: 'xiao-ji-bg', textColor: 'xiao-ji-text' },
+                6: { name: '空亡', meaning: '虚妄无果，谋事难成', color: 'kong-wang', bgColor: 'kong-wang-bg', textColor: 'kong-wang-text' }
             };
 
             // 表单提交处理
@@ -352,9 +425,9 @@
             // 清除结果样式函数
             function clearResultStyles() {
                 const resultCards = document.querySelectorAll('.result-card');
-                const colors = ['bg-blue-500', 'bg-purple-500', 'bg-green-500', 'bg-red-500', 'bg-yellow-500', 'bg-gray-500'];
-                const bgColors = ['bg-blue-50', 'bg-purple-50', 'bg-green-50', 'bg-red-50', 'bg-yellow-50', 'bg-gray-50'];
-                const textColors = ['text-blue-700', 'text-purple-700', 'text-green-700', 'text-red-700', 'text-yellow-700', 'text-gray-700'];
+                const colors = ['da-an', 'liu-lian', 'su-xi', 'chi-kou', 'xiao-ji', 'kong-wang'];
+                const bgColors = ['da-an-bg', 'liu-lian-bg', 'su-xi-bg', 'chi-kou-bg', 'xiao-ji-bg', 'kong-wang-bg'];
+                const textColors = ['da-an-text', 'liu-lian-text', 'su-xi-text', 'chi-kou-text', 'xiao-ji-text', 'kong-wang-text'];
                 
                 resultCards.forEach(card => {
                     // 移除背景颜色类

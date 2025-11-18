@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小红书采集工具</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <style>
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-pink-50 to-red-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <!-- 头部 -->
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">
+                <i class="fas fa-heart text-red-500 mr-2"></i>
+                小红书采集工具
+            </h1>
+            <p class="text-gray-600">根据关键词搜索并采集小红书内容</p>
+        </header>
+
+        <!-- 搜索区域 -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex-1">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-search mr-1"></i>搜索关键词
+                    </label>
+                    <input 
+                        type="text" 
+                        id="keywordInput" 
+                        placeholder="请输入关键词，如：美食、旅行、穿搭..."
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all"
+                    >
+                </div>
+                <div class="md:w-48">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-list-ol mr-1"></i>采集数量
+                    </label>
+                    <input 
+                        type="number" 
+                        id="limitInput" 
+                        value="20" 
+                        min="1" 
+                        max="100"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none"
+                    >
+                </div>
+                <div class="flex items-end">
+                    <button 
+                        id="searchBtn"
+                        class="w-full md:w-auto px-8 py-3 bg-gradient-to-r from-red-500 to-pink-500 text-white font-semibold rounded-lg hover:from-red-600 hover:to-pink-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                    >
+                        <i class="fas fa-search mr-2"></i>开始采集
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 高级选项 -->
+            <div class="mt-4 pt-4 border-t border-gray-200">
+                <button 
+                    id="advancedToggle"
+                    class="text-sm text-gray-600 hover:text-gray-800 flex items-center"
+                >
+                    <i class="fas fa-cog mr-1"></i>高级选项
+                    <i class="fas fa-chevron-down ml-2 text-xs"></i>
+                </button>
+                <div id="advancedOptions" class="hidden mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">排序方式</label>
+                        <select id="sortSelect" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none">
+                            <option value="general">综合排序</option>
+                            <option value="time">最新发布</option>
+                            <option value="popularity_descending">最热</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">内容类型</label>
+                        <select id="typeSelect" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none">
+                            <option value="0">全部</option>
+                            <option value="1">图文</option>
+                            <option value="2">视频</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">采集字段</label>
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="checkbox" class="mr-2" checked data-field="title"> 标题
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="mr-2" checked data-field="desc"> 描述
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="mr-2" checked data-field="images"> 图片
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="mr-2" checked data-field="author"> 作者
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 统计信息 -->
+        <div id="statsBar" class="hidden bg-white rounded-lg shadow-md p-4 mb-6">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-6">
+                    <div>
+                        <span class="text-sm text-gray-600">已采集:</span>
+                        <span id="collectedCount" class="ml-2 text-lg font-bold text-red-500">0</span>
+                    </div>
+                    <div>
+                        <span class="text-sm text-gray-600">状态:</span>
+                        <span id="statusText" class="ml-2 text-sm font-medium text-green-600">就绪</span>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <button 
+                        id="exportJsonBtn"
+                        class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm"
+                    >
+                        <i class="fas fa-download mr-1"></i>导出JSON
+                    </button>
+                    <button 
+                        id="exportCsvBtn"
+                        class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm"
+                    >
+                        <i class="fas fa-file-csv mr-1"></i>导出CSV
+                    </button>
+                    <button 
+                        id="clearBtn"
+                        class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors text-sm"
+                    >
+                        <i class="fas fa-trash mr-1"></i>清空
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 结果展示区域 -->
+        <div id="resultsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="col-span-full text-center text-gray-500 py-12">
+                <i class="fas fa-search text-6xl mb-4 opacity-50"></i>
+                <p>请输入关键词开始采集</p>
+            </div>
+        </div>
+
+        <!-- 加载提示 -->
+        <div id="loadingIndicator" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg p-8 text-center">
+                <i class="fas fa-spinner animate-spin text-4xl text-red-500 mb-4"></i>
+                <p class="text-gray-700 font-medium">正在采集数据...</p>
+                <p id="loadingText" class="text-sm text-gray-500 mt-2"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let collectedData = [];
+        let isCollecting = false;
+
+        // DOM元素
+        const keywordInput = document.getElementById('keywordInput');
+        const limitInput = document.getElementById('limitInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const advancedToggle = document.getElementById('advancedToggle');
+        const advancedOptions = document.getElementById('advancedOptions');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const statsBar = document.getElementById('statsBar');
+        const collectedCount = document.getElementById('collectedCount');
+        const statusText = document.getElementById('statusText');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const loadingText = document.getElementById('loadingText');
+        const exportJsonBtn = document.getElementById('exportJsonBtn');
+        const exportCsvBtn = document.getElementById('exportCsvBtn');
+        const clearBtn = document.getElementById('clearBtn');
+
+        // 高级选项切换
+        advancedToggle.addEventListener('click', () => {
+            advancedOptions.classList.toggle('hidden');
+            const icon = advancedToggle.querySelector('.fa-chevron-down');
+            icon.classList.toggle('rotate-180');
+        });
+
+        // 搜索按钮事件
+        searchBtn.addEventListener('click', startCollection);
+        keywordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') startCollection();
+        });
+
+        // 开始采集
+        async function startCollection() {
+            const keyword = keywordInput.value.trim();
+            if (!keyword) {
+                alert('请输入搜索关键词');
+                return;
+            }
+
+            if (isCollecting) {
+                alert('采集正在进行中，请稍候...');
+                return;
+            }
+
+            isCollecting = true;
+            searchBtn.disabled = true;
+            searchBtn.innerHTML = '<i class="fas fa-spinner animate-spin mr-2"></i>采集中...';
+            
+            loadingIndicator.classList.remove('hidden');
+            loadingText.textContent = `正在搜索关键词: ${keyword}`;
+            
+            statsBar.classList.remove('hidden');
+            statusText.textContent = '采集中...';
+            statusText.className = 'ml-2 text-sm font-medium text-blue-600';
+
+            try {
+                // 模拟采集过程（实际使用时需要替换为真实的API调用）
+                await simulateCollection(keyword);
+            } catch (error) {
+                console.error('采集错误:', error);
+                alert('采集失败: ' + error.message);
+            } finally {
+                isCollecting = false;
+                searchBtn.disabled = false;
+                searchBtn.innerHTML = '<i class="fas fa-search mr-2"></i>开始采集';
+                loadingIndicator.classList.add('hidden');
+                statusText.textContent = '采集完成';
+                statusText.className = 'ml-2 text-sm font-medium text-green-600';
+            }
+        }
+
+        // 模拟采集过程（实际使用时需要替换为真实API）
+        async function simulateCollection(keyword) {
+            const limit = parseInt(limitInput.value) || 20;
+            const newData = [];
+
+            // 模拟API延迟
+            for (let i = 0; i < limit; i++) {
+                await new Promise(resolve => setTimeout(resolve, 300));
+                
+                // 生成模拟数据
+                const item = {
+                    id: Date.now() + i,
+                    title: `${keyword}相关笔记 ${i + 1}`,
+                    desc: `这是关于${keyword}的精彩内容，包含了丰富的图片和详细的描述信息...`,
+                    images: [
+                        `https://picsum.photos/400/400?random=${i + 1}`,
+                        `https://picsum.photos/400/400?random=${i + 2}`,
+                    ],
+                    author: `用户${String.fromCharCode(65 + (i % 26))}`,
+                    likes: Math.floor(Math.random() * 10000),
+                    comments: Math.floor(Math.random() * 1000),
+                    time: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toLocaleDateString(),
+                    url: `https://www.xiaohongshu.com/explore/${Date.now() + i}`
+                };
+
+                newData.push(item);
+                collectedData.push(item);
+                
+                // 更新UI
+                updateStats();
+                addResultCard(item);
+                loadingText.textContent = `已采集 ${i + 1}/${limit} 条数据`;
+            }
+        }
+
+        // 添加结果卡片
+        function addResultCard(item) {
+            const card = document.createElement('div');
+            card.className = 'bg-white rounded-xl shadow-md overflow-hidden card-hover fade-in';
+            card.innerHTML = `
+                <div class="relative">
+                    <img 
+                        src="${item.images[0]}" 
+                        alt="${item.title}"
+                        class="w-full h-48 object-cover"
+                        onerror="this.src='https://via.placeholder.com/400x400?text=图片加载失败'"
+                    >
+                    <div class="absolute top-2 right-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs">
+                        <i class="fas fa-images mr-1"></i>${item.images.length}
+                    </div>
+                </div>
+                <div class="p-4">
+                    <h3 class="font-semibold text-gray-800 mb-2 line-clamp-2">${item.title}</h3>
+                    <p class="text-sm text-gray-600 mb-3 line-clamp-2">${item.desc}</p>
+                    <div class="flex items-center justify-between text-xs text-gray-500">
+                        <span><i class="fas fa-user mr-1"></i>${item.author}</span>
+                        <span><i class="fas fa-heart mr-1 text-red-500"></i>${item.likes}</span>
+                    </div>
+                    <div class="mt-3 pt-3 border-t border-gray-100 flex gap-2">
+                        <a 
+                            href="${item.url}" 
+                            target="_blank"
+                            class="flex-1 text-center px-3 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm"
+                        >
+                            <i class="fas fa-external-link-alt mr-1"></i>查看原文
+                        </a>
+                        <button 
+                            onclick="copyToClipboard('${item.url}')"
+                            class="px-3 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
+                            title="复制链接"
+                        >
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // 如果结果区域是空的，清空提示
+            if (resultsContainer.children.length === 1 && resultsContainer.children[0].classList.contains('col-span-full')) {
+                resultsContainer.innerHTML = '';
+            }
+            
+            resultsContainer.appendChild(card);
+        }
+
+        // 更新统计信息
+        function updateStats() {
+            collectedCount.textContent = collectedData.length;
+        }
+
+        // 复制到剪贴板
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('链接已复制到剪贴板');
+            });
+        }
+
+        // 导出JSON
+        exportJsonBtn.addEventListener('click', () => {
+            if (collectedData.length === 0) {
+                alert('没有数据可导出');
+                return;
+            }
+            
+            const dataStr = JSON.stringify(collectedData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `xiaohongshu_${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+
+        // 导出CSV
+        exportCsvBtn.addEventListener('click', () => {
+            if (collectedData.length === 0) {
+                alert('没有数据可导出');
+                return;
+            }
+            
+            const headers = ['标题', '描述', '作者', '点赞数', '评论数', '发布时间', '链接'];
+            const rows = collectedData.map(item => [
+                `"${item.title.replace(/"/g, '""')}"`,
+                `"${item.desc.replace(/"/g, '""')}"`,
+                `"${item.author}"`,
+                item.likes,
+                item.comments,
+                `"${item.time}"`,
+                `"${item.url}"`
+            ]);
+            
+            const csv = [
+                headers.join(','),
+                ...rows.map(row => row.join(','))
+            ].join('\n');
+            
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `xiaohongshu_${Date.now()}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+
+        // 清空数据
+        clearBtn.addEventListener('click', () => {
+            if (confirm('确定要清空所有采集的数据吗？')) {
+                collectedData = [];
+                resultsContainer.innerHTML = `
+                    <div class="col-span-full text-center text-gray-500 py-12">
+                        <i class="fas fa-search text-6xl mb-4 opacity-50"></i>
+                        <p>请输入关键词开始采集</p>
+                    </div>
+                `;
+                statsBar.classList.add('hidden');
+                updateStats();
+            }
+        });
+
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            // 检查是否有保存的数据
+            const savedData = localStorage.getItem('xiaohongshu_data');
+            if (savedData) {
+                try {
+                    collectedData = JSON.parse(savedData);
+                    if (collectedData.length > 0) {
+                        updateStats();
+                        statsBar.classList.remove('hidden');
+                        collectedData.forEach(item => addResultCard(item));
+                    }
+                } catch (e) {
+                    console.error('加载保存数据失败:', e);
+                }
+            }
+        });
+
+        // 自动保存数据到本地存储
+        setInterval(() => {
+            if (collectedData.length > 0) {
+                localStorage.setItem('xiaohongshu_data', JSON.stringify(collectedData));
+            }
+        }, 5000);
+    </script>
+</body>
+</html>
+

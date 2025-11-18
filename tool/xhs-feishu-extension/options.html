@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>飞书配置</title>
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <main>
+      <h1>飞书多维表格设置</h1>
+      <p class="desc">需要具备飞书开放平台的自建应用权限</p>
+
+      <form id="settingsForm">
+        <label>
+          <span>应用 App ID</span>
+          <input name="appId" placeholder="cli_xxx" />
+        </label>
+        <label>
+          <span>应用 App Secret</span>
+          <input name="appSecret" placeholder="xxxx" />
+        </label>
+        <label>
+          <span>多维表格 App Token</span>
+          <input name="appToken" placeholder="bascn***" />
+        </label>
+        <label>
+          <span>数据表 Table ID</span>
+          <input name="tableId" placeholder="tbl***" />
+        </label>
+        <label>
+          <span>商品ID字段名</span>
+          <input name="fieldProductId" value="商品ID" />
+        </label>
+        <label>
+          <span>主图字段名</span>
+          <input name="fieldCover" value="主图" />
+        </label>
+
+        <div class="actions">
+          <button type="submit">保存配置</button>
+          <span id="status"></span>
+        </div>
+      </form>
+    </main>
+
+    <section class="tips">
+      <h2>操作提示</h2>
+      <ol>
+        <li>在飞书开放平台创建自建应用，启用多维表格读写权限</li>
+        <li>在多维表格中创建字段，如「商品ID」「主图」</li>
+        <li>回到插件设置中填写对应凭证</li>
+      </ol>
+    </section>
+
+    <script type="module" src="options.js"></script>
+  </body>
+</html>

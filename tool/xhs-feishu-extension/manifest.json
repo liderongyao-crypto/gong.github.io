@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "小红书商品采集与飞书同步",
+  "description": "批量抓取小红书商品ID与主图，并同步到飞书多维表格",
+  "version": "0.1.0",
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://www.xiaohongshu.com/*",
+    "https://open.feishu.cn/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  ],
+  "action": {
+    "default_title": "采集小红书商品",
+    "default_popup": "popup.html"
+  ],
+  "options_page": "options.html",
+  "content_scripts": [
+    {
+      "matches": ["https://www.xiaohongshu.com/*"],
+      "js": ["contentScript.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

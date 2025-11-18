@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>小红书采集助手</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header>
+      <div>
+        <h1>小红书商品采集</h1>
+        <p>抓取商品ID与主图并同步至飞书</p>
+      </div>
+      <button id="openOptions">设置</button>
+    </header>
+
+    <section class="actions">
+      <button id="collectBtn">抓取当前页面</button>
+      <button id="syncBtn" disabled>同步到飞书</button>
+    </section>
+
+    <section class="stats">
+      <div>
+        <span>已发现</span>
+        <strong id="count">0</strong>
+      </div>
+      <div>
+        <span>最新刷新</span>
+        <strong id="updated">--</strong>
+      </div>
+    </section>
+
+    <section>
+      <table id="resultTable">
+        <thead>
+          <tr>
+            <th>商品ID</th>
+            <th>主图</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <div id="toast" hidden></div>
+
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

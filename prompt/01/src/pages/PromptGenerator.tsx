@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { Copy, RefreshCcw, Image, Users, Video, Palette, Smile, Zap } from "lucide-react";
-import { cn } from "../lib/utils";
 
+// 类型定义
 type PromptOptions = {
     pose: string;
     scene: string;
@@ -18,6 +17,7 @@ type PromptOptions = {
     removeElements: boolean;
 };
 
+// 选项数据
 const poseOptions = [
     "站姿正面",
     "坐姿侧倾",
@@ -144,20 +144,19 @@ const styleOptions = [
     "人像摄影"
 ];
 
-const noiseLevelOptions = [{
-    value: "",
-    label: "选择程度..."
-}, {
-    value: "轻度瞎呲",
-    label: "轻度瞎呲"
-}, {
-    value: "中度瞎呲",
-    label: "中度瞎呲"
-}, {
-    value: "重度瞎呲",
-    label: "重度瞎呲"
-}];
+const noiseLevelOptions = [
+    { value: "", label: "选择程度..." },
+    { value: "轻度瞎呲", label: "轻度瞎呲" },
+    { value: "中度瞎呲", label: "中度瞎呲" },
+    { value: "重度瞎呲", label: "重度瞎呲" }
+];
 
+// 合并类名的工具函数
+const cn = (...inputs: any[]) => {
+    return inputs.filter(Boolean).join(' ');
+};
+
+// 主组件
 const PromptGenerator: React.FC = () => {
     const [basePrompt, setBasePrompt] = useState<string>("");
 
@@ -178,6 +177,7 @@ const PromptGenerator: React.FC = () => {
     const [generatedPrompt, setGeneratedPrompt] = useState<string>("");
     const [copySuccess, setCopySuccess] = useState<boolean>(false);
 
+    // 生成提示词的逻辑
     useEffect(() => {
         let fullPrompt = basePrompt.trim();
 
@@ -217,31 +217,31 @@ const PromptGenerator: React.FC = () => {
         setGeneratedPrompt(fullPrompt);
     }, [basePrompt, options]);
 
-    const handleOptionChange = (category: keyof PromptOptions, value: string) => {
+    // 处理选项变化
+    const handleOptionChange = (category: keyof PromptOptions, value: string | boolean) => {
         setOptions(prev => ({
             ...prev,
             [category]: value
         }));
     };
 
+    // 复制到剪贴板
     const handleCopy = async () => {
         try {
             await navigator.clipboard.writeText(generatedPrompt);
             setCopySuccess(true);
-            toast("提示词已复制到剪贴板！");
+            // 使用简单的alert替代toast
+            setTimeout(() => alert("提示词已复制到剪贴板！"), 100);
             setTimeout(() => setCopySuccess(false), 2000);
         } catch (err) {
-            toast("复制失败，请手动复制", {
-                type: "error"
-            });
-
+            alert("复制失败，请手动复制");
             console.error("复制失败:", err);
         }
     };
 
+    // 重置所有输入
     const handleReset = () => {
         setBasePrompt("");
-
         setOptions({
             pose: "",
             scene: "",
@@ -252,17 +252,17 @@ const PromptGenerator: React.FC = () => {
             noiseSkin: "",
             noiseClothes: "",
             onlyReferenceThisImage: false,
-            resetStyleAssociation: false
+            resetStyleAssociation: false,
+            removeElements: false
         });
-
-        toast("已清空所有输入");
+        // 使用简单的alert替代toast
+        setTimeout(() => alert("已清空所有输入"), 100);
     };
 
     return (
         <div
             className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-blue-900 text-gray-800 dark:text-gray-100 py-10 px-4 sm:px-6 lg:px-8">
             <div className="max-w-4xl mx-auto">
-                {}
                 <motion.div
                     initial={{
                         opacity: 0,
@@ -277,10 +277,9 @@ const PromptGenerator: React.FC = () => {
                     }}
                     className="text-center mb-12">
                     <h1 className="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-3">豆包（商用）提示词生成器</h1>
-                    <p className="text-lg text-gray-600 dark:text-gray-300">创建精准、生动的提示词，释放您的创作潜力
-                                  </p>
+                    <p className="text-lg text-gray-600 dark:text-gray-300">创建精准、生动的提示词，释放您的创作潜力</p>
                 </motion.div>
-                {}
+                
                 <motion.div
                     initial={{
                         opacity: 0,
@@ -295,12 +294,10 @@ const PromptGenerator: React.FC = () => {
                         delay: 0.2
                     }}
                     className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 sm:p-8">
-                    {}
                     <div className="mb-8">
                         <label
                             htmlFor="basePrompt"
-                            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">基础提示词
-                                        </label>
+                            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">基础提示词</label>
                         <textarea
                             id="basePrompt"
                             value={basePrompt}
@@ -308,23 +305,17 @@ const PromptGenerator: React.FC = () => {
                             placeholder="请输入基础提示词，例如：一个穿着西装的商务人士..."
                             className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none h-32" />
                     </div>
-                    {}
+                    
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                        {}
                         <motion.div
-                            whileHover={{
-                                scale: 1.01
-                            }}
-                            transition={{
-                                type: "spring",
-                                stiffness: 300
-                            }}
+                            whileHover={{ scale: 1.01 }}
+                            transition={{ type: "spring", stiffness: 300 }}
                             className="relative">
                             <label
                                 htmlFor="pose"
                                 className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
                                 <Users className="mr-2 h-4 w-4" />人物姿势
-                                               </label>
+                            </label>
                             <select
                                 id="pose"
                                 value={options.pose}
@@ -333,8 +324,7 @@ const PromptGenerator: React.FC = () => {
                                 <option value="">选择姿势...</option>
                                 {poseOptions.map((pose, index) => <option key={index} value={pose}>{pose}</option>)}
                             </select>
-                            <div
-                                className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3">
+                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3">
                                 <svg
                                     className="h-5 w-5 text-gray-400"
                                     fill="none"
@@ -348,21 +338,16 @@ const PromptGenerator: React.FC = () => {
                                 </svg>
                             </div>
                         </motion.div>
-                        {}
+                        
                         <motion.div
-                            whileHover={{
-                                scale: 1.01
-                            }}
-                            transition={{
-                                type: "spring",
-                                stiffness: 300
-                            }}
+                            whileHover={{ scale: 1.01 }}
+                            transition={{ type: "spring", stiffness: 300 }}
                             className="relative">
                             <label
                                 htmlFor="expression"
                                 className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
                                 <Smile className="mr-2 h-4 w-4" />人物表情
-                                               </label>
+                            </label>
                             <select
                                 id="expression"
                                 value={options.expression}
@@ -373,8 +358,7 @@ const PromptGenerator: React.FC = () => {
                                     (expression, index) => <option key={index} value={expression}>{expression}</option>
                                 )}
                             </select>
-                            <div
-                                className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3">
+                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3">
                                 <svg
                                     className="h-5 w-5 text-gray-400"
                                     fill="none"
@@ -388,21 +372,16 @@ const PromptGenerator: React.FC = () => {
                                 </svg>
                             </div>
                         </motion.div>
-                        {}
+                        
                         <motion.div
-                            whileHover={{
-                                scale: 1.01
-                            }}
-                            transition={{
-                                type: "spring",
-                                stiffness: 300
-                            }}
+                            whileHover={{ scale: 1.01 }}
+                            transition={{ type: "spring", stiffness: 300 }}
                             className="relative">
                             <label
                                 htmlFor="scene"
                                 className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
                                 <Image className="mr-2 h-4 w-4" />场景
-                                               </label>
+                            </label>
                             <select
                                 id="scene"
                                 value={options.scene}
@@ -411,8 +390,7 @@ const PromptGenerator: React.FC = () => {
                                 <option value="">选择场景...</option>
                                 {sceneOptions.map((scene, index) => <option key={index} value={scene}>{scene}</option>)}
                             </select>
-                            <div
-                                className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3">
+                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3">
                                 <svg
                                     className="h-5 w-5 text-gray-400"
                                     fill="none"
@@ -426,21 +404,16 @@ const PromptGenerator: React.FC = () => {
                                 </svg>
                             </div>
                         </motion.div>
-                        {}
+                        
                         <motion.div
-                            whileHover={{
-                                scale: 1.01
-                            }}
-                            transition={{
-                                type: "spring",
-                                stiffness: 300
-                            }}
+                            whileHover={{ scale: 1.01 }}
+                            transition={{ type: "spring", stiffness: 300 }}
                             className="relative">
                             <label
                                 htmlFor="shotType"
                                 className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
                                 <Video className="mr-2 h-4 w-4" />景别
-                                               </label>
+                            </label>
                             <select
                                 id="shotType"
                                 value={options.shotType}
@@ -451,8 +424,7 @@ const PromptGenerator: React.FC = () => {
                                     (shotType, index) => <option key={index} value={shotType}>{shotType}</option>
                                 )}
                             </select>
-                            <div
-                                className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3">
+                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3">
                                 <svg
                                     className="h-5 w-5 text-gray-400"
                                     fill="none"
@@ -466,21 +438,16 @@ const PromptGenerator: React.FC = () => {
                                 </svg>
                             </div>
                         </motion.div>
-                        {}
+                        
                         <motion.div
-                            whileHover={{
-                                scale: 1.01
-                            }}
-                            transition={{
-                                type: "spring",
-                                stiffness: 300
-                            }}
+                            whileHover={{ scale: 1.01 }}
+                            transition={{ type: "spring", stiffness: 300 }}
                             className="relative">
                             <label
                                 htmlFor="style"
                                 className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
                                 <Palette className="mr-2 h-4 w-4" />风格
-                                               </label>
+                            </label>
                             <select
                                 id="style"
                                 value={options.style}
@@ -489,8 +456,7 @@ const PromptGenerator: React.FC = () => {
                                 <option value="">选择风格...</option>
                                 {styleOptions.map((style, index) => <option key={index} value={style}>{style}</option>)}
                             </select>
-                            <div
-                                className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3">
+                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3">
                                 <svg
                                     className="h-5 w-5 text-gray-400"
                                     fill="none"
@@ -504,21 +470,16 @@ const PromptGenerator: React.FC = () => {
                                 </svg>
                             </div>
                         </motion.div>
-                        {}
+                        
                         <motion.div
-                            whileHover={{
-                                scale: 1.01
-                            }}
-                            transition={{
-                                type: "spring",
-                                stiffness: 300
-                            }}
+                            whileHover={{ scale: 1.01 }}
+                            transition={{ type: "spring", stiffness: 300 }}
                             className="relative">
                             <label
                                 htmlFor="noiseEnvironment"
                                 className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
                                 <Zap className="mr-2 h-4 w-4" />环境瞎呲程度
-                                               </label>
+                            </label>
                             <select
                                 id="noiseEnvironment"
                                 value={options.noiseEnvironment}
@@ -528,8 +489,7 @@ const PromptGenerator: React.FC = () => {
                                     (option, index) => <option key={index} value={option.value}>{option.label}</option>
                                 )}
                             </select>
-                            <div
-                                className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3">
+                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3">
                                 <svg
                                     className="h-5 w-5 text-gray-400"
                                     fill="none"
@@ -543,21 +503,16 @@ const PromptGenerator: React.FC = () => {
                                 </svg>
                             </div>
                         </motion.div>
-                        {}
+                        
                         <motion.div
-                            whileHover={{
-                                scale: 1.01
-                            }}
-                            transition={{
-                                type: "spring",
-                                stiffness: 300
-                            }}
+                            whileHover={{ scale: 1.01 }}
+                            transition={{ type: "spring", stiffness: 300 }}
                             className="relative">
                             <label
                                 htmlFor="noiseSkin"
                                 className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
                                 <Zap className="mr-2 h-4 w-4" />皮肤瞎呲程度
-                                               </label>
+                            </label>
                             <select
                                 id="noiseSkin"
                                 value={options.noiseSkin}
@@ -567,8 +522,7 @@ const PromptGenerator: React.FC = () => {
                                     (option, index) => <option key={index} value={option.value}>{option.label}</option>
                                 )}
                             </select>
-                            <div
-                                className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3">
+                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3">
                                 <svg
                                     className="h-5 w-5 text-gray-400"
                                     fill="none"
@@ -582,21 +536,16 @@ const PromptGenerator: React.FC = () => {
                                 </svg>
                             </div>
                         </motion.div>
-                        {}
+                        
                         <motion.div
-                            whileHover={{
-                                scale: 1.01
-                            }}
-                            transition={{
-                                type: "spring",
-                                stiffness: 300
-                            }}
+                            whileHover={{ scale: 1.01 }}
+                            transition={{ type: "spring", stiffness: 300 }}
                             className="relative">
                             <label
                                 htmlFor="noiseClothes"
                                 className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
                                 <Zap className="mr-2 h-4 w-4" />衣服瞎呲程度
-                                               </label>
+                            </label>
                             <select
                                 id="noiseClothes"
                                 value={options.noiseClothes}
@@ -606,8 +555,7 @@ const PromptGenerator: React.FC = () => {
                                     (option, index) => <option key={index} value={option.value}>{option.label}</option>
                                 )}
                             </select>
-                            <div
-                                className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3">
+                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3">
                                 <svg
                                     className="h-5 w-5 text-gray-400"
                                     fill="none"
@@ -621,16 +569,11 @@ const PromptGenerator: React.FC = () => {
                                 </svg>
                             </div>
                         </motion.div>
-                        {}
+                        
                         <div className="md:col-span-2">
                             <motion.div
-                                whileHover={{
-                                    scale: 1.01
-                                }}
-                                transition={{
-                                    type: "spring",
-                                    stiffness: 300
-                                }}
+                                whileHover={{ scale: 1.01 }}
+                                transition={{ type: "spring", stiffness: 300 }}
                                 className="mb-4">
                                 <label
                                     htmlFor="onlyReferenceThisImage"
@@ -645,13 +588,8 @@ const PromptGenerator: React.FC = () => {
                                 </label>
                             </motion.div>
                             <motion.div
-                                whileHover={{
-                                    scale: 1.01
-                                }}
-                                transition={{
-                                    type: "spring",
-                                    stiffness: 300
-                                }}>
+                                whileHover={{ scale: 1.01 }}
+                                transition={{ type: "spring", stiffness: 300 }}>
                                 <label
                                     htmlFor="resetStyleAssociation"
                                     className="flex items-center cursor-pointer">
@@ -665,13 +603,8 @@ const PromptGenerator: React.FC = () => {
                                 </label>
                             </motion.div>
                             <motion.div
-                                whileHover={{
-                                    scale: 1.01
-                                }}
-                                transition={{
-                                    type: "spring",
-                                    stiffness: 300
-                                }}
+                                whileHover={{ scale: 1.01 }}
+                                transition={{ type: "spring", stiffness: 300 }}
                                 className="mt-4">
                                 <label htmlFor="removeElements" className="flex items-center cursor-pointer">
                                     <input
@@ -685,26 +618,20 @@ const PromptGenerator: React.FC = () => {
                             </motion.div>
                         </div>
                     </div>
-                    {}
+                    
                     <div className="mb-6">
                         <label
-                            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">生成的提示词
-                                        </label>
+                            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">生成的提示词</label>
                         <div
                             className={`w-full px-4 py-5 rounded-lg border ${generatedPrompt ? "border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-gray-700/50" : "border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50"} min-h-[100px] transition-all duration-300`}>
-                            {generatedPrompt ? <p className="text-gray-800 dark:text-gray-200 leading-relaxed">{generatedPrompt}</p> : <p className="text-gray-400 italic text-center leading-[100px]">输入基础提示词并选择选项，生成的提示词将显示在这里
-                                                </p>}
+                            {generatedPrompt ? <p className="text-gray-800 dark:text-gray-200 leading-relaxed">{generatedPrompt}</p> : <p className="text-gray-400 italic text-center leading-[100px]">输入基础提示词并选择选项，生成的提示词将显示在这里</p>}
                         </div>
                     </div>
-                    {}
+                    
                     <div className="flex flex-wrap gap-4">
                         <motion.button
-                            whileHover={{
-                                scale: 1.03
-                            }}
-                            whileTap={{
-                                scale: 0.98
-                            }}
+                            whileHover={{ scale: 1.03 }}
+                            whileTap={{ scale: 0.98 }}
                             onClick={handleCopy}
                             disabled={!generatedPrompt}
                             className={cn(
@@ -723,35 +650,24 @@ const PromptGenerator: React.FC = () => {
                                         strokeWidth={2}
                                         d="M5 13l4 4L19 7" />
                                 </svg>已复制
-                                                </> : <>
+                            </> : <>
                                 <Copy className="h-5 w-5 mr-2" />复制提示词
-                                                </>}
+                            </>}
                         </motion.button>
                         <motion.button
-                            whileHover={{
-                                scale: 1.03
-                            }}
-                            whileTap={{
-                                scale: 0.98
-                            }}
+                            whileHover={{ scale: 1.03 }}
+                            whileTap={{ scale: 0.98 }}
                             onClick={handleReset}
                             className="flex items-center justify-center px-6 py-3 rounded-lg font-medium bg-gray-200 hover:bg-gray-300 text-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200 transition-all duration-300">
                             <RefreshCcw className="h-5 w-5 mr-2" />清空所有
-                                        </motion.button>
+                        </motion.button>
                     </div>
                 </motion.div>
-                {}
+                
                 <motion.div
-                    initial={{
-                        opacity: 0
-                    }}
-                    animate={{
-                        opacity: 1
-                    }}
-                    transition={{
-                        duration: 0.6,
-                        delay: 0.4
-                    }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.6, delay: 0.4 }}
                     className="text-center mt-10 text-sm text-gray-500 dark:text-gray-400">
                     <p>提示词生成器 © {new Date().getFullYear()}</p>
                     <p className="mt-1">释放创意，生成精准描述</p>

@@ -1,3 +1,4 @@
+// 简化的主题钩子，保持基本功能但不依赖外部依赖
 import { useState, useEffect } from 'react';
 
 type Theme = 'light' | 'dark';

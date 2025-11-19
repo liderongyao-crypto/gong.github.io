@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { Copy, RefreshCcw, Image, Users, Video, Palette, Smile, Zap } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "../lib/utils";
 
 type PromptOptions = {
     pose: string;

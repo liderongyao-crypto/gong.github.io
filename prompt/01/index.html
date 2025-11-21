@@ -1,17 +1,1005 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>提示词生成器 - 创意描述工具</title>
-    <meta name="color-scheme" content="dark" />
-    <style>
-      /* 使用内联样式代替CDN引入 */
-      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-    </style>
-  </head>
-    <body class="font-sans antialiased dark bg-gray-900 text-gray-100">
-    <div id="root"></div>
-    <script type="module" src="./src/main.tsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>提示词生成器 - 创意描述工具</title>
+  <meta name="color-scheme" content="dark">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #3b82f6;
+      --primary-hover: #2563eb;
+      --bg-color: #f9fafb;
+      --bg-dark: #111827;
+      --bg-gradient-start: #f9fafb;
+      --bg-gradient-end: #dbeafe;
+      --bg-gradient-dark-start: #111827;
+      --bg-gradient-dark-end: #1e40af;
+      --text-color: #1f2937;
+      --text-dark: #f3f4f6;
+      --card-bg: #ffffff;
+      --card-dark: #1f2937;
+      --border-color: #e5e7eb;
+      --border-dark: #374151;
+      --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --shadow-dark: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      line-height: 1.5;
+      font-weight: 400;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      background: linear-gradient(to bottom right, var(--bg-gradient-start), var(--bg-gradient-end));
+      color: var(--text-color);
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    body.dark {
+      background: linear-gradient(to bottom right, var(--bg-gradient-dark-start), var(--bg-gradient-dark-end));
+      color: var(--text-dark);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 48px;
+      opacity: 0;
+      transform: translateY(-20px);
+      animation: fadeInUp 0.6s forwards;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: var(--primary-color);
+      margin-bottom: 12px;
+    }
+
+    .header p {
+      font-size: 1.125rem;
+      color: #4b5563;
+    }
+
+    body.dark .header p {
+      color: #d1d5db;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      padding: 32px;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.6s forwards 0.2s;
+    }
+
+    body.dark .card {
+      background: var(--card-dark);
+      box-shadow: var(--shadow-dark);
+    }
+
+    .form-group {
+      margin-bottom: 24px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #4b5563;
+      margin-bottom: 8px;
+    }
+
+    body.dark .form-group label {
+      color: #d1d5db;
+    }
+
+    .text-area {
+      width: 100%;
+      min-height: 128px;
+      padding: 12px 16px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: inherit;
+      resize: vertical;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    body.dark .text-area {
+      background: #374151;
+      border-color: #4b5563;
+      color: #f3f4f6;
+    }
+
+    .text-area:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    body.dark .text-area:focus {
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+
+    @media (min-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .select-wrapper {
+      position: relative;
+      transition: transform 0.2s;
+    }
+
+    .select-wrapper:hover {
+      transform: scale(1.01);
+    }
+
+    .select-wrapper label {
+      display: flex;
+      align-items: center;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #4b5563;
+      margin-bottom: 8px;
+    }
+
+    body.dark .select-wrapper label {
+      color: #d1d5db;
+    }
+
+    .select-wrapper label svg {
+      margin-right: 8px;
+      width: 16px;
+      height: 16px;
+    }
+
+    .select {
+      width: 100%;
+      padding: 12px 40px 12px 16px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 1rem;
+      background: white;
+      appearance: none;
+      cursor: pointer;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    body.dark .select {
+      background: #374151;
+      border-color: #4b5563;
+      color: #f3f4f6;
+    }
+
+    .select:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    body.dark .select:focus {
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+    }
+
+    .select-wrapper::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      right: 16px;
+      transform: translateY(25%);
+      width: 0;
+      height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 6px solid #9ca3af;
+      pointer-events: none;
+    }
+
+    body.dark .select-wrapper::after {
+      border-top-color: #d1d5db;
+    }
+
+    .checkbox-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .checkbox-item:hover {
+      transform: scale(1.01);
+    }
+
+    .checkbox-item input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      border-radius: 6px;
+      margin-right: 8px;
+      cursor: pointer;
+    }
+
+    body.dark .checkbox-item input[type="checkbox"] {
+      background: #374151;
+      border-color: #4b5563;
+    }
+
+    .checkbox-item span {
+      font-size: 1rem;
+      color: #4b5563;
+    }
+
+    body.dark .checkbox-item span {
+      color: #d1d5db;
+    }
+
+    .result-group {
+      margin-bottom: 24px;
+    }
+
+    .result-group label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #4b5563;
+      margin-bottom: 8px;
+    }
+
+    body.dark .result-group label {
+      color: #d1d5db;
+    }
+
+    .result-box {
+      width: 100%;
+      min-height: 100px;
+      padding: 20px 16px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      background: #f9fafb;
+      transition: all 0.3s;
+    }
+
+    body.dark .result-box {
+      background: #374151;
+      border-color: #4b5563;
+    }
+
+    .result-box.filled {
+      border-color: #dbeafe;
+      background: #eff6ff;
+    }
+
+    body.dark .result-box.filled {
+      border-color: #1e40af;
+      background: rgba(30, 64, 175, 0.1);
+    }
+
+    .result-box p {
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+
+    body.dark .result-box p {
+      color: #f3f4f6;
+    }
+
+    .result-box .placeholder {
+      text-align: center;
+      line-height: 60px;
+      color: #9ca3af;
+      font-style: italic;
+    }
+
+    body.dark .result-box .placeholder {
+      color: #6b7280;
+    }
+
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+    }
+
+    .button-primary {
+      background: var(--primary-color);
+      color: white;
+      box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
+    }
+
+    .button-primary:hover {
+      background: var(--primary-hover);
+      box-shadow: 0 6px 8px -1px rgba(59, 130, 246, 0.3);
+      transform: translateY(-1px);
+    }
+
+    .button-primary:active {
+      transform: translateY(0);
+    }
+
+    .button-primary:disabled {
+      background: #d1d5db;
+      color: #6b7280;
+      box-shadow: none;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .button-secondary {
+      background: #e5e7eb;
+      color: #374151;
+    }
+
+    body.dark .button-secondary {
+      background: #374151;
+      color: #f3f4f6;
+    }
+
+    .button-secondary:hover {
+      background: #d1d5db;
+      transform: translateY(-1px);
+    }
+
+    body.dark .button-secondary:hover {
+      background: #4b5563;
+    }
+
+    .button-secondary:active {
+      transform: translateY(0);
+    }
+
+    .button svg {
+      margin-right: 8px;
+      width: 20px;
+      height: 20px;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      padding-top: 20px;
+      opacity: 0;
+      animation: fadeIn 0.6s forwards 0.4s;
+    }
+
+    .footer p {
+      font-size: 0.875rem;
+      color: #6b7280;
+      margin-bottom: 4px;
+    }
+
+    body.dark .footer p {
+      color: #9ca3af;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    /* 图标样式 */
+    .icon {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      stroke-width: 0;
+      stroke: currentColor;
+      fill: currentColor;
+      vertical-align: middle;
+    }
+
+    /* 响应式调整 */
+    @media (max-width: 768px) {
+      .container {
+        padding: 20px 16px;
+      }
+      
+      .header {
+        margin-bottom: 32px;
+      }
+      
+      .header h1 {
+        font-size: 2rem;
+      }
+      
+      .header p {
+        font-size: 1rem;
+      }
+      
+      .card {
+        padding: 24px;
+      }
+      
+      .button-group {
+        flex-direction: column;
+      }
+      
+      .button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body class="dark">
+  <div class="container">
+    <header class="header">
+      <h1>豆包（商用）提示词生成器</h1>
+      <p>创建精准、生动的提示词，释放您的创作潜力</p>
+    </header>
+
+    <main class="card">
+      <div class="form-group">
+        <label for="basePrompt">基础提示词</label>
+        <textarea
+          id="basePrompt"
+          placeholder="请输入基础提示词，例如：一个穿着西装的商务人士..."
+          class="text-area"></textarea>
+      </div>
+
+      <div class="grid">
+        <!-- 人物姿势 -->
+        <div class="select-wrapper">
+          <label for="pose">
+            <svg class="icon" viewBox="0 0 24 24">
+              <path d="M16 4c0 2.21-1.79 4-4 4S8 6.21 8 4s1.79-4 4-4 4 1.79 4 4zm-2 7c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4z"/>
+            </svg>
+            人物姿势
+          </label>
+          <select id="pose" class="select">
+            <option value="">选择姿势...</option>
+            <option value="站姿正面">站姿正面</option>
+            <option value="坐姿侧倾">坐姿侧倾</option>
+            <option value="行走动态">行走动态</option>
+            <option value="交叉腿坐姿">交叉腿坐姿</option>
+            <option value="单手叉腰">单手叉腰</option>
+            <option value="双手背后">双手背后</option>
+            <option value="自然垂放">自然垂放</option>
+            <option value="托腮思考">托腮思考</option>
+            <option value="倚墙姿势">倚墙姿势</option>
+            <option value="抬腿坐姿">抬腿坐姿</option>
+            <option value="跳跃动态">跳跃动态</option>
+            <option value="转身回眸">转身回眸</option>
+            <option value="拥抱姿势">拥抱姿势</option>
+            <option value="伸展双臂">伸展双臂</option>
+            <option value="盘腿而坐">盘腿而坐</option>
+            <option value="扶额表情">扶额表情</option>
+            <option value="挥手致意">挥手致意</option>
+            <option value="插兜站姿">插兜站姿</option>
+            <option value="翘腿坐姿">翘腿坐姿</option>
+            <option value="踮脚姿势">踮脚姿势</option>
+            <option value="低头沉思">低头沉思</option>
+            <option value="后仰大笑">后仰大笑</option>
+            <option value="双手抱臂">双手抱臂</option>
+            <option value="叉腰侧身">叉腰侧身</option>
+            <option value="弯腰动作">弯腰动作</option>
+            <option value="静坐阅读">静坐阅读</option>
+            <option value="跑步动态">跑步动态</option>
+            <option value="舞蹈姿势">舞蹈姿势</option>
+            <option value="冥想姿势">冥想姿势</option>
+            <option value="瑜伽动作">瑜伽动作</option>
+          </select>
+        </div>
+
+        <!-- 人物表情 -->
+        <div class="select-wrapper">
+          <label for="expression">
+            <svg class="icon" viewBox="0 0 24 24">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+            人物表情
+          </label>
+          <select id="expression" class="select">
+            <option value="">选择表情...</option>
+            <option value="微笑">微笑</option>
+            <option value="大笑">大笑</option>
+            <option value="严肃">严肃</option>
+            <option value="思考">思考</option>
+            <option value="惊讶">惊讶</option>
+            <option value="愤怒">愤怒</option>
+            <option value="悲伤">悲伤</option>
+            <option value="恐惧">恐惧</option>
+            <option value="害羞">害羞</option>
+            <option value="调皮">调皮</option>
+            <option value="专注">专注</option>
+            <option value="放松">放松</option>
+            <option value="疲惫">疲惫</option>
+            <option value="兴奋">兴奋</option>
+            <option value="平静">平静</option>
+            <option value="不屑">不屑</option>
+            <option value="嘲讽">嘲讽</option>
+            <option value="温柔">温柔</option>
+            <option value="亲切">亲切</option>
+            <option value="冷漠">冷漠</option>
+            <option value="坚毅">坚毅</option>
+            <option value="迷茫">迷茫</option>
+            <option value="欣慰">欣慰</option>
+            <option value="痛苦">痛苦</option>
+            <option value="愉悦">愉悦</option>
+            <option value="好奇">好奇</option>
+            <option value="怀疑">怀疑</option>
+            <option value="自信">自信</option>
+            <option value="满足">满足</option>
+            <option value="期待">期待</option>
+          </select>
+        </div>
+
+        <!-- 场景 -->
+        <div class="select-wrapper">
+          <label for="scene">
+            <svg class="icon" viewBox="0 0 24 24">
+              <path d="M14.54 5l-.73-1.46L11.5 5l1.46 2.92L11.5 11l2.31-4.61L17.5 11l-.73-1.46L14.54 5zM19.07 15.56L18.06 17l1.41 1.41L21 16.41l-1.93-1.85zm-1.41-1.41l-1.41-1.41L5 17.93v2.03l14.54-14.54 2.03 2.03L6.06 19H4v-2.03l13.63-13.63 1.41 1.41z"/>
+            </svg>
+            场景
+          </label>
+          <select id="scene" class="select">
+            <option value="">选择场景...</option>
+            <option value="城市街头">城市街头</option>
+            <option value="森林深处">森林深处</option>
+            <option value="办公室内">办公室内</option>
+            <option value="海滩日落">海滩日落</option>
+            <option value="山间小径">山间小径</option>
+            <option value="咖啡馆中">咖啡馆中</option>
+            <option value="博物馆里">博物馆里</option>
+            <option value="公园长椅">公园长椅</option>
+            <option value="家庭客厅">家庭客厅</option>
+            <option value="校园教室">校园教室</option>
+            <option value="图书馆内">图书馆内</option>
+            <option value="餐厅环境">餐厅环境</option>
+            <option value="医院病房">医院病房</option>
+            <option value="机场大厅">机场大厅</option>
+            <option value="车站月台">车站月台</option>
+            <option value="购物中心">购物中心</option>
+            <option value="艺术画廊">艺术画廊</option>
+            <option value="健身中心">健身中心</option>
+            <option value="电影院内">电影院内</option>
+            <option value="音乐会现场">音乐会现场</option>
+            <option value="酒店房间">酒店房间</option>
+            <option value="会议室中">会议室中</option>
+            <option value="游乐园里">游乐园里</option>
+            <option value="滑雪场道">滑雪场道</option>
+            <option value="农田景观">农田景观</option>
+            <option value="工厂车间">工厂车间</option>
+            <option value="建筑工地">建筑工地</option>
+            <option value="太空站里">太空站里</option>
+            <option value="古代城堡">古代城堡</option>
+            <option value="未来城市">未来城市</option>
+          </select>
+        </div>
+
+        <!-- 景别 -->
+        <div class="select-wrapper">
+          <label for="shotType">
+            <svg class="icon" viewBox="0 0 24 24">
+              <path d="M18 10h-4V4H8v6H4l8 8 8-8zM2 18h20v2H2v-2z"/>
+            </svg>
+            景别
+          </label>
+          <select id="shotType" class="select">
+            <option value="">选择景别...</option>
+            <option value="特写">特写</option>
+            <option value="近景">近景</option>
+            <option value="中景">中景</option>
+            <option value="全景">全景</option>
+            <option value="远景">远景</option>
+            <option value="大特写">大特写</option>
+            <option value="中近景">中近景</option>
+            <option value="中全景">中全景</option>
+            <option value="大全景">大全景</option>
+            <option value="超远景">超远景</option>
+          </select>
+        </div>
+
+        <!-- 风格 -->
+        <div class="select-wrapper">
+          <label for="style">
+            <svg class="icon" viewBox="0 0 24 24">
+              <path d="M14.53 4.53l-1.06-1.06L12 2.94l-1.47 1.47L8.37 2.94 7.31 3.99l1.47 1.47L5.83 7.94 4.77 6.88l1.47-1.47L3.3 7.37l1.06 1.06L3.94 12l1.47 1.47L4.77 17.12l-1.47 1.47 1.06 1.06L7.31 20l1.47-1.47 1.47 1.47 1.06-1.06-1.47-1.47 1.47-1.47 1.47 1.47 1.06-1.06-1.47-1.47 1.47-1.47 1.47 1.47 1.06-1.06-1.47-1.47 1.47-1.47 1.47 1.47 1.06-1.06-1.47-1.47 1.47-1.47-1.06-1.06-1.47 1.47-1.47-1.47-1.06 1.06 1.47 1.47-1.47 1.47-1.47-1.47-1.06 1.06 1.47 1.47L12 16.83l-1.47-1.47 1.47-1.47-1.06-1.06 1.47-1.47L12 9.17l1.47 1.47-1.47 1.47 1.06 1.06-1.47 1.47 1.47 1.47 1.47-1.47 1.06 1.06-1.47 1.47 1.47 1.47 1.47-1.47 1.06 1.06-1.47 1.47 1.47 1.47-1.06 1.06-1.47-1.47-1.47 1.47-1.06-1.06 1.47-1.47L16.83 12l-1.47-1.47 1.47-1.47 1.47 1.47 1.06-1.06-1.47-1.47 1.47-1.47-1.06-1.06-1.47 1.47-1.47-1.47-1.06 1.06 1.47 1.47L12 9.17l-1.47-1.47 1.47-1.47-1.06-1.06 1.47-1.47L12 2.94l1.47 1.47L15.06 2.94l1.06 1.06-1.47 1.47 1.47 1.47z"/>
+            </svg>
+            风格
+          </label>
+          <select id="style" class="select">
+            <option value="">选择风格...</option>
+            <option value="写实主义">写实主义</option>
+            <option value="超现实主义">超现实主义</option>
+            <option value="极简主义">极简主义</option>
+            <option value="复古风">复古风</option>
+            <option value="未来主义">未来主义</option>
+            <option value="抽象表现">抽象表现</option>
+            <option value="印象派">印象派</option>
+            <option value="波普艺术">波普艺术</option>
+            <option value="新古典主义">新古典主义</option>
+            <option value="后现代主义">后现代主义</option>
+            <option value="浪漫主义">浪漫主义</option>
+            <option value="自然主义">自然主义</option>
+            <option value="荒诞派">荒诞派</option>
+            <option value="象征主义">象征主义</option>
+            <option value="装饰艺术">装饰艺术</option>
+            <option value="概念艺术">概念艺术</option>
+            <option value="街头艺术">街头艺术</option>
+            <option value="数字艺术">数字艺术</option>
+            <option value="蒸汽朋克">蒸汽朋克</option>
+            <option value="赛博朋克">赛博朋克</option>
+            <option value="电影写真">电影写真</option>
+            <option value="人像摄影">人像摄影</option>
+          </select>
+        </div>
+
+        <!-- 灯光 -->
+        <div class="select-wrapper">
+          <label for="lighting">
+            <svg class="icon" viewBox="0 0 24 24">
+              <path d="M12 2c-1.82 0-3.53.5-5 1.35C5.53 3.5 4.69 4.76 4.35 6.14 4 7.53 4 9.12 4 12s0 4.47.35 5.86c.34 1.38 1.18 2.65 2.65 3.5C8.47 21.5 10.18 22 12 22s3.53-.5 5-1.35c1.47-.85 2.31-2.12 2.65-3.5.35-1.39.35-2.98.35-5.86s0-4.47-.35-5.86c-.34-1.38-1.18-2.65-2.65-3.5C15.53 2.5 13.82 2 12 2zm0 1.8c1.72 0 3.38.51 4.85 1.38C18.13 5.95 18.9 7.35 19.2 9h-14.4c.3-1.65 1.07-3.05 2.35-4.02C8.62 4.31 10.28 3.8 12 3.8zm0 16.4c-1.72 0-3.38-.51-4.85-1.38C5.87 18.05 5.1 16.65 4.8 15h14.4c-.3 1.65-1.07 3.05-2.35 4.02-1.47.87-3.13 1.38-4.85 1.38zM12 6c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 2c2.21 0 4 1.79 4 4s-1.79 4-4 4-4-1.79-4-4 1.79-4 4-4z"/>
+            </svg>
+            灯光
+          </label>
+          <select id="lighting" class="select">
+            <option value="">选择灯光...</option>
+            <option value="自然光">自然光</option>
+            <option value="柔光箱">柔光箱</option>
+            <option value="闪光灯">闪光灯</option>
+            <option value="柔光罩">柔光罩</option>
+            <option value="聚光灯">聚光灯</option>
+            <option value="柔光伞">柔光伞</option>
+            <option value="反光板">反光板</option>
+            <option value="背景灯">背景灯</option>
+            <option value="轮廓光">轮廓光</option>
+            <option value="主光">主光</option>
+            <option value="辅助光">辅助光</option>
+            <option value="伦勃朗光">伦勃朗光</option>
+            <option value="蝴蝶光">蝴蝶光</option>
+            <option value="分割光">分割光</option>
+            <option value="侧光">侧光</option>
+            <option value="顶光">顶光</option>
+            <option value="底光">底光</option>
+            <option value="背光">背光</option>
+            <option value="三点布光">三点布光</option>
+            <option value="高反差光">高反差光</option>
+            <option value="低反差光">低反差光</option>
+            <option value="柔光效果">柔光效果</option>
+            <option value="硬光效果">硬光效果</option>
+            <option value="散射光">散射光</option>
+            <option value="直射光">直射光</option>
+            <option value="暖光">暖光</option>
+            <option value="冷光">冷光</option>
+            <option value="中性光">中性光</option>
+            <option value="环境光">环境光</option>
+            <option value="混合光源">混合光源</option>
+          </select>
+        </div>
+
+        <!-- 清晰度 -->
+        <div class="select-wrapper">
+          <label for="clarity">
+            <svg class="icon" viewBox="0 0 24 24">
+              <path d="M12 2c-1.82 0-3.53.5-5 1.35C5.53 3.5 4.69 4.76 4.35 6.14 4 7.53 4 9.12 4 12s0 4.47.35 5.86c.34 1.38 1.18 2.65 2.65 3.5C8.47 21.5 10.18 22 12 22s3.53-.5 5-1.35c1.47-.85 2.31-2.12 2.65-3.5.35-1.39.35-2.98.35-5.86s0-4.47-.35-5.86c-.34-1.38-1.18-2.65-2.65-3.5C15.53 2.5 13.82 2 12 2zm0 1.8c1.72 0 3.38.51 4.85 1.38C18.13 5.95 18.9 7.35 19.2 9h-14.4c.3-1.65 1.07-3.05 2.35-4.02C8.62 4.31 10.28 3.8 12 3.8zm0 16.4c-1.72 0-3.38-.51-4.85-1.38C5.87 18.05 5.1 16.65 4.8 15h14.4c-.3 1.65-1.07 3.05-2.35 4.02-1.47.87-3.13 1.38-4.85 1.38zM12 6c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 2c2.21 0 4 1.79 4 4s-1.79 4-4 4-4-1.79-4-4 1.79-4 4-4z"/>
+            </svg>
+            清晰度
+          </label>
+          <select id="clarity" class="select">
+            <option value="">选择清晰度...</option>
+            <option value="8K超高清">8K超高清</option>
+            <option value="极致锐化">极致锐化</option>
+            <option value="高分辨率">高分辨率</option>
+            <option value="AI超分">AI超分</option>
+            <option value="超清纹理">超清纹理</option>
+            <option value="无损放大">无损放大</option>
+            <option value="动态对比度增强">动态对比度增强</option>
+            <option value="降噪高清">降噪高清</option>
+            <option value="专业级锐化滤镜">专业级锐化滤镜</option>
+            <option value="超清画质">超清画质</option>
+            <option value="细节增强">细节增强</option>
+            <option value="高清重制">高清重制</option>
+            <option value="超清晰处理">超清晰处理</option>
+            <option value="像素级优化">像素级优化</option>
+            <option value="高动态范围">高动态范围</option>
+            <option value="超清修复">超清修复</option>
+            <option value="智能增强清晰度">智能增强清晰度</option>
+            <option value="锐化增强">锐化增强</option>
+            <option value="8K分辨率">8K分辨率</option>
+            <option value="细节强化">细节强化</option>
+          </select>
+        </div>
+
+        <!-- 环境瑕疵程度 -->
+        <div class="select-wrapper">
+          <label for="noiseEnvironment">
+            <svg class="icon" viewBox="0 0 24 24">
+              <path d="M12 2c-1.82 0-3.53.5-5 1.35C5.53 3.5 4.69 4.76 4.35 6.14 4 7.53 4 9.12 4 12s0 4.47.35 5.86c.34 1.38 1.18 2.65 2.65 3.5C8.47 21.5 10.18 22 12 22s3.53-.5 5-1.35c1.47-.85 2.31-2.12 2.65-3.5.35-1.39.35-2.98.35-5.86s0-4.47-.35-5.86c-.34-1.38-1.18-2.65-2.65-3.5C15.53 2.5 13.82 2 12 2zm0 1.8c1.72 0 3.38.51 4.85 1.38C18.13 5.95 18.9 7.35 19.2 9h-14.4c.3-1.65 1.07-3.05 2.35-4.02C8.62 4.31 10.28 3.8 12 3.8zm0 16.4c-1.72 0-3.38-.51-4.85-1.38C5.87 18.05 5.1 16.65 4.8 15h14.4c-.3 1.65-1.07 3.05-2.35 4.02-1.47.87-3.13 1.38-4.85 1.38zM12 6c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 2c2.21 0 4 1.79 4 4s-1.79 4-4 4-4-1.79-4-4 1.79-4 4-4z"/>
+            </svg>
+            环境瑕疵程度
+          </label>
+          <select id="noiseEnvironment" class="select">
+            <option value="">选择程度...</option>
+            <option value="轻度瑕疵">轻度瑕疵</option>
+            <option value="中度瑕疵">中度瑕疵</option>
+            <option value="重度瑕疵">重度瑕疵</option>
+          </select>
+        </div>
+
+        <!-- 皮肤瑕疵程度 -->
+        <div class="select-wrapper">
+          <label for="noiseSkin">
+            <svg class="icon" viewBox="0 0 24 24">
+              <path d="M12 2c-1.82 0-3.53.5-5 1.35C5.53 3.5 4.69 4.76 4.35 6.14 4 7.53 4 9.12 4 12s0 4.47.35 5.86c.34 1.38 1.18 2.65 2.65 3.5C8.47 21.5 10.18 22 12 22s3.53-.5 5-1.35c1.47-.85 2.31-2.12 2.65-3.5.35-1.39.35-2.98.35-5.86s0-4.47-.35-5.86c-.34-1.38-1.18-2.65-2.65-3.5C15.53 2.5 13.82 2 12 2zm0 1.8c1.72 0 3.38.51 4.85 1.38C18.13 5.95 18.9 7.35 19.2 9h-14.4c.3-1.65 1.07-3.05 2.35-4.02C8.62 4.31 10.28 3.8 12 3.8zm0 16.4c-1.72 0-3.38-.51-4.85-1.38C5.87 18.05 5.1 16.65 4.8 15h14.4c-.3 1.65-1.07 3.05-2.35 4.02-1.47.87-3.13 1.38-4.85 1.38zM12 6c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 2c2.21 0 4 1.79 4 4s-1.79 4-4 4-4-1.79-4-4 1.79-4 4-4z"/>
+            </svg>
+            皮肤瑕疵程度
+          </label>
+          <select id="noiseSkin" class="select">
+            <option value="">选择程度...</option>
+            <option value="轻度瑕疵">轻度瑕疵</option>
+            <option value="中度瑕疵">中度瑕疵</option>
+            <option value="重度瑕疵">重度瑕疵</option>
+          </select>
+        </div>
+
+        <!-- 衣服瑕疵程度 -->
+        <div class="select-wrapper">
+          <label for="noiseClothes">
+            <svg class="icon" viewBox="0 0 24 24">
+              <path d="M12 2c-1.82 0-3.53.5-5 1.35C5.53 3.5 4.69 4.76 4.35 6.14 4 7.53 4 9.12 4 12s0 4.47.35 5.86c.34 1.38 1.18 2.65 2.65 3.5C8.47 21.5 10.18 22 12 22s3.53-.5 5-1.35c1.47-.85 2.31-2.12 2.65-3.5.35-1.39.35-2.98.35-5.86s0-4.47-.35-5.86c-.34-1.38-1.18-2.65-2.65-3.5C15.53 2.5 13.82 2 12 2zm0 1.8c1.72 0 3.38.51 4.85 1.38C18.13 5.95 18.9 7.35 19.2 9h-14.4c.3-1.65 1.07-3.05 2.35-4.02C8.62 4.31 10.28 3.8 12 3.8zm0 16.4c-1.72 0-3.38-.51-4.85-1.38C5.87 18.05 5.1 16.65 4.8 15h14.4c-.3 1.65-1.07 3.05-2.35 4.02-1.47.87-3.13 1.38-4.85 1.38zM12 6c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 2c2.21 0 4 1.79 4 4s-1.79 4-4 4-4-1.79-4-4 1.79-4 4-4z"/>
+            </svg>
+            衣服瑕疵程度
+          </label>
+          <select id="noiseClothes" class="select">
+            <option value="">选择程度...</option>
+            <option value="轻度瑕疵">轻度瑕疵</option>
+            <option value="中度瑕疵">中度瑕疵</option>
+            <option value="重度瑕疵">重度瑕疵</option>
+          </select>
+        </div>
+
+        <!-- 复选框选项 -->
+        <div class="grid-span-2">
+          <div class="checkbox-group">
+            <div class="checkbox-item">
+              <input type="checkbox" id="onlyReferenceThisImage">
+              <span>仅参考本次图</span>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="resetStyleAssociation">
+              <span>重置风格关联</span>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="removeElements">
+              <span>去除元素</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 生成的提示词 -->
+      <div class="result-group">
+        <label>生成的提示词</label>
+        <div id="resultBox" class="result-box">
+          <p class="placeholder">输入基础提示词并选择选项，生成的提示词将显示在这里</p>
+        </div>
+      </div>
+
+      <!-- 按钮组 -->
+      <div class="button-group">
+        <button id="copyButton" class="button button-primary" disabled>
+          <svg class="icon" viewBox="0 0 24 24">
+            <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+          </svg>
+          复制提示词
+        </button>
+        <button id="resetButton" class="button button-secondary">
+          <svg class="icon" viewBox="0 0 24 24">
+            <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+          </svg>
+          清空所有
+        </button>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <p>提示词生成器 © <span id="currentYear">2023</span></p>
+      <p>释放创意，生成精准描述</p>
+    </footer>
+  </div>
+
+  <script>
+    // 设置当前年份
+    document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+    // 获取DOM元素
+    const basePromptInput = document.getElementById('basePrompt');
+    const poseSelect = document.getElementById('pose');
+    const expressionSelect = document.getElementById('expression');
+    const sceneSelect = document.getElementById('scene');
+    const shotTypeSelect = document.getElementById('shotType');
+    const styleSelect = document.getElementById('style');
+    const lightingSelect = document.getElementById('lighting');
+    const claritySelect = document.getElementById('clarity');
+    const noiseEnvironmentSelect = document.getElementById('noiseEnvironment');
+    const noiseSkinSelect = document.getElementById('noiseSkin');
+    const noiseClothesSelect = document.getElementById('noiseClothes');
+    const onlyReferenceThisImageCheckbox = document.getElementById('onlyReferenceThisImage');
+    const resetStyleAssociationCheckbox = document.getElementById('resetStyleAssociation');
+    const removeElementsCheckbox = document.getElementById('removeElements');
+    const resultBox = document.getElementById('resultBox');
+    const copyButton = document.getElementById('copyButton');
+    const resetButton = document.getElementById('resetButton');
+
+    // 更新生成的提示词
+    function updateGeneratedPrompt() {
+      let fullPrompt = basePromptInput.value.trim();
+      
+      // 辅助函数：添加选项到提示词，处理逗号逻辑
+      function addOption(option, prefix = '') {
+        if (option) {
+          if (fullPrompt) {
+            fullPrompt += `，${prefix}${option}`;
+          } else {
+            fullPrompt += `${prefix}${option}`;
+          }
+        }
+      }
+      
+      addOption(poseSelect.value);
+      addOption(expressionSelect.value);
+      addOption(sceneSelect.value, '在');
+      addOption(shotTypeSelect.value);
+      addOption(styleSelect.value);
+      addOption(lightingSelect.value);
+      addOption(claritySelect.value);
+      addOption(noiseEnvironmentSelect.value, '环境');
+      addOption(noiseSkinSelect.value, '皮肤');
+      addOption(noiseClothesSelect.value, '衣服');
+      
+      if (onlyReferenceThisImageCheckbox.checked) {
+        addOption('完全以本次提供的参考图为视觉基准，忽略之前所有生成内容，按照此图的风格、元素、构图逻辑进行创作，不得沿用之前的样式');
+      }
+      
+      if (resetStyleAssociationCheckbox.checked) {
+        addOption('重置风格记忆，仅聚焦当前参考图，从画面元素、色调、质感等方面严格匹配此图的特征进行创作');
+      }
+      
+      if (removeElementsCheckbox.checked) {
+        addOption('去除文字、英文、图标、水印、LOGO');
+      }
+
+      // 更新结果显示
+      if (fullPrompt) {
+        resultBox.innerHTML = `<p>${fullPrompt}</p>`;
+        resultBox.classList.add('filled');
+        copyButton.disabled = false;
+      } else {
+        resultBox.innerHTML = `<p class="placeholder">输入基础提示词并选择选项，生成的提示词将显示在这里</p>`;
+        resultBox.classList.remove('filled');
+        copyButton.disabled = true;
+      }
+    }
+
+    // 复制到剪贴板
+    async function copyToClipboard() {
+      const text = resultBox.querySelector('p').textContent;
+      try {
+        await navigator.clipboard.writeText(text);
+        // 显示复制成功状态
+        const originalText = copyButton.innerHTML;
+        copyButton.innerHTML = `
+          <svg class="icon" viewBox="0 0 24 24">
+            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+          </svg>
+          已复制
+        `;
+        
+        // 2秒后恢复原状
+        setTimeout(() => {
+          copyButton.innerHTML = originalText;
+        }, 2000);
+      } catch (err) {
+        console.error('复制失败:', err);
+      }
+    }
+
+    // 重置所有输入
+    function resetAllInputs() {
+      basePromptInput.value = '';
+      poseSelect.value = '';
+      expressionSelect.value = '';
+      sceneSelect.value = '';
+      shotTypeSelect.value = '';
+      styleSelect.value = '';
+      lightingSelect.value = '';
+      claritySelect.value = '';
+      noiseEnvironmentSelect.value = '';
+      noiseSkinSelect.value = '';
+      noiseClothesSelect.value = '';
+      onlyReferenceThisImageCheckbox.checked = false;
+      resetStyleAssociationCheckbox.checked = false;
+      removeElementsCheckbox.checked = false;
+      
+      // 更新提示词显示
+      updateGeneratedPrompt();
+      
+      // 简单的提示
+      setTimeout(() => {
+        alert('已清空所有输入');
+      }, 100);
+    }
+
+    // 添加事件监听器
+    basePromptInput.addEventListener('input', updateGeneratedPrompt);
+    poseSelect.addEventListener('change', updateGeneratedPrompt);
+    expressionSelect.addEventListener('change', updateGeneratedPrompt);
+    sceneSelect.addEventListener('change', updateGeneratedPrompt);
+    shotTypeSelect.addEventListener('change', updateGeneratedPrompt);
+    styleSelect.addEventListener('change', updateGeneratedPrompt);
+    lightingSelect.addEventListener('change', updateGeneratedPrompt);
+    claritySelect.addEventListener('change', updateGeneratedPrompt);
+    noiseEnvironmentSelect.addEventListener('change', updateGeneratedPrompt);
+    noiseSkinSelect.addEventListener('change', updateGeneratedPrompt);
+    noiseClothesSelect.addEventListener('change', updateGeneratedPrompt);
+    onlyReferenceThisImageCheckbox.addEventListener('change', updateGeneratedPrompt);
+    resetStyleAssociationCheckbox.addEventListener('change', updateGeneratedPrompt);
+    removeElementsCheckbox.addEventListener('change', updateGeneratedPrompt);
+    
+    copyButton.addEventListener('click', copyToClipboard);
+    resetButton.addEventListener('click', resetAllInputs);
+
+    // 初始更新提示词
+    updateGeneratedPrompt();
+  </script>
+</body>
 </html>

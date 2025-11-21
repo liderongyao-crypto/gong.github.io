@@ -9,7 +9,7 @@ type PromptOptions = {
     shotType: string;
     style: string;
     expression: string;
-    lighting: string;
+    light: string;
     clarity: string;
     noiseEnvironment: string;
     noiseSkin: string;
@@ -146,8 +146,8 @@ const styleOptions = [
     "人像摄影"
 ];
 
-// 摄影灯光选项
-const lightingOptions = [
+// 摄影光线选项
+const lightOptions = [
     "自然光",
     "柔光箱",
     "闪光灯",
@@ -226,7 +226,7 @@ const PromptGenerator: React.FC = () => {
         shotType: "",
         style: "",
         expression: "",
-        lighting: "",
+        light: "",
         clarity: "",
         noiseEnvironment: "",
         noiseSkin: "",
@@ -243,27 +243,35 @@ const PromptGenerator: React.FC = () => {
     useEffect(() => {
         let fullPrompt = basePrompt.trim();
 
-        // 辅助函数：添加选项到提示词，处理逗号逻辑
-        const addOption = (option: string, prefix: string = '') => {
+         // 辅助函数：添加选项到提示词，处理逗号逻辑
+        const addOption = (option: string, category: string = '', prefix: string = '') => {
             if (option) {
                 if (fullPrompt) {
-                    fullPrompt += `，${prefix}${option}`;
+                    if (category) {
+                        fullPrompt += `，${category}「${option}」`;
+                    } else {
+                        fullPrompt += `，${prefix}${option}`;
+                    }
                 } else {
-                    fullPrompt += `${prefix}${option}`;
+                    if (category) {
+                        fullPrompt += `${category}「${option}」`;
+                    } else {
+                        fullPrompt += `${prefix}${option}`;
+                    }
                 }
             }
         };
 
-        addOption(options.pose);
-        addOption(options.expression, '');
-        addOption(options.scene, '在');
-        addOption(options.shotType);
-        addOption(options.style, '');
-        addOption(options.lighting);
-        addOption(options.clarity);
-        addOption(options.noiseEnvironment, '环境');
-        addOption(options.noiseSkin, '皮肤');
-        addOption(options.noiseClothes, '衣服');
+         addOption(options.pose, '人物姿势');
+        addOption(options.expression, '人物表情');
+        addOption(options.scene, '场景', '');
+        addOption(options.shotType, '景别');
+        addOption(options.style, '风格');
+         addOption(options.light, '光线');
+        addOption(options.clarity, '清晰度');
+        addOption(options.noiseEnvironment, '环境瑕疵程度');
+        addOption(options.noiseSkin, '皮肤瑕疵程度');
+        addOption(options.noiseClothes, '衣服瑕疵程度');
 
         if (options.onlyReferenceThisImage) {
             addOption('完全以本次提供的参考图为视觉基准，忽略之前所有生成内容，按照此图的风格、元素、构图逻辑进行创作，不得沿用之前的样式');
@@ -309,7 +317,7 @@ const PromptGenerator: React.FC = () => {
             shotType: "",
             style: "",
             expression: "",
-            lighting: "",
+             light: "",
             clarity: "",
             noiseEnvironment: "",
             noiseSkin: "",
@@ -539,17 +547,17 @@ const PromptGenerator: React.FC = () => {
                             transition={{ type: "spring", stiffness: 300 }}
                             className="relative">
                             <label
-                                htmlFor="lighting"
+                                htmlFor="light"
                                 className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
-                                <Zap className="mr-2 h-4 w-4" />灯光
+                                <Zap className="mr-2 h-4 w-4" />光线
                             </label>
                             <select
-                                id="lighting"
-                                value={options.lighting}
-                                onChange={e => handleOptionChange("lighting", e.target.value)}
+                                id="light"
+                                value={options.light}
+                                onChange={e => handleOptionChange("light", e.target.value)}
                                 className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none">
-                                <option value="">选择灯光...</option>
-                                {lightingOptions.map((lighting, index) => <option key={index} value={lighting}>{lighting}</option>)}
+                                <option value="">选择光线...</option>
+                                {lightOptions.map((light, index) => <option key={index} value={light}>{light}</option>)}
                             </select>
                             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3">
                                 <svg

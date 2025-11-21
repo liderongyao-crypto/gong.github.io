@@ -683,16 +683,16 @@
           </select>
         </div>
 
-        <!-- 灯光 -->
+         <!-- 光线 -->
         <div class="select-wrapper">
-          <label for="lighting">
+           <label for="light">
             <svg class="icon" viewBox="0 0 24 24">
               <path d="M12 2c-1.82 0-3.53.5-5 1.35C5.53 3.5 4.69 4.76 4.35 6.14 4 7.53 4 9.12 4 12s0 4.47.35 5.86c.34 1.38 1.18 2.65 2.65 3.5C8.47 21.5 10.18 22 12 22s3.53-.5 5-1.35c1.47-.85 2.31-2.12 2.65-3.5.35-1.39.35-2.98.35-5.86s0-4.47-.35-5.86c-.34-1.38-1.18-2.65-2.65-3.5C15.53 2.5 13.82 2 12 2zm0 1.8c1.72 0 3.38.51 4.85 1.38C18.13 5.95 18.9 7.35 19.2 9h-14.4c.3-1.65 1.07-3.05 2.35-4.02C8.62 4.31 10.28 3.8 12 3.8zm0 16.4c-1.72 0-3.38-.51-4.85-1.38C5.87 18.05 5.1 16.65 4.8 15h14.4c-.3 1.65-1.07 3.05-2.35 4.02-1.47.87-3.13 1.38-4.85 1.38zM12 6c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 2c2.21 0 4 1.79 4 4s-1.79 4-4 4-4-1.79-4-4 1.79-4 4-4z"/>
             </svg>
-            灯光
+            光线
           </label>
-          <select id="lighting" class="select">
-            <option value="">选择灯光...</option>
+           <select id="light" class="select">
+               <option value="">选择光线...</option>
             <option value="自然光">自然光</option>
             <option value="柔光箱">柔光箱</option>
             <option value="闪光灯">闪光灯</option>
@@ -868,7 +868,7 @@
     const sceneSelect = document.getElementById('scene');
     const shotTypeSelect = document.getElementById('shotType');
     const styleSelect = document.getElementById('style');
-    const lightingSelect = document.getElementById('lighting');
+  const lightSelect = document.getElementById('light');
     const claritySelect = document.getElementById('clarity');
     const noiseEnvironmentSelect = document.getElementById('noiseEnvironment');
     const noiseSkinSelect = document.getElementById('noiseSkin');
@@ -884,27 +884,35 @@
     function updateGeneratedPrompt() {
       let fullPrompt = basePromptInput.value.trim();
       
-      // 辅助函数：添加选项到提示词，处理逗号逻辑
-      function addOption(option, prefix = '') {
+       // 辅助函数：添加选项到提示词，处理逗号逻辑
+      function addOption(option, category = '', prefix = '') {
         if (option) {
           if (fullPrompt) {
-            fullPrompt += `，${prefix}${option}`;
+            if (category) {
+              fullPrompt += `，${category}「${option}」`;
+            } else {
+              fullPrompt += `，${prefix}${option}`;
+            }
           } else {
-            fullPrompt += `${prefix}${option}`;
+            if (category) {
+              fullPrompt += `${category}「${option}」`;
+            } else {
+              fullPrompt += `${prefix}${option}`;
+            }
           }
         }
       }
       
-      addOption(poseSelect.value);
-      addOption(expressionSelect.value);
-      addOption(sceneSelect.value, '在');
-      addOption(shotTypeSelect.value);
-      addOption(styleSelect.value);
-      addOption(lightingSelect.value);
-      addOption(claritySelect.value);
-      addOption(noiseEnvironmentSelect.value, '环境');
-      addOption(noiseSkinSelect.value, '皮肤');
-      addOption(noiseClothesSelect.value, '衣服');
+       addOption(poseSelect.value, '人物姿势');
+      addOption(expressionSelect.value, '人物表情');
+      addOption(sceneSelect.value, '场景', '');
+      addOption(shotTypeSelect.value, '景别');
+      addOption(styleSelect.value, '风格');
+  addOption(lightSelect.value, '光线');
+      addOption(claritySelect.value, '清晰度');
+      addOption(noiseEnvironmentSelect.value, '环境瑕疵程度');
+      addOption(noiseSkinSelect.value, '皮肤瑕疵程度');
+      addOption(noiseClothesSelect.value, '衣服瑕疵程度');
       
       if (onlyReferenceThisImageCheckbox.checked) {
         addOption('完全以本次提供的参考图为视觉基准，忽略之前所有生成内容，按照此图的风格、元素、构图逻辑进行创作，不得沿用之前的样式');
@@ -961,7 +969,7 @@
       sceneSelect.value = '';
       shotTypeSelect.value = '';
       styleSelect.value = '';
-      lightingSelect.value = '';
+  lightSelect.value = '';
       claritySelect.value = '';
       noiseEnvironmentSelect.value = '';
       noiseSkinSelect.value = '';
@@ -986,7 +994,7 @@
     sceneSelect.addEventListener('change', updateGeneratedPrompt);
     shotTypeSelect.addEventListener('change', updateGeneratedPrompt);
     styleSelect.addEventListener('change', updateGeneratedPrompt);
-    lightingSelect.addEventListener('change', updateGeneratedPrompt);
+  lightSelect.addEventListener('change', updateGeneratedPrompt);
     claritySelect.addEventListener('change', updateGeneratedPrompt);
     noiseEnvironmentSelect.addEventListener('change', updateGeneratedPrompt);
     noiseSkinSelect.addEventListener('change', updateGeneratedPrompt);

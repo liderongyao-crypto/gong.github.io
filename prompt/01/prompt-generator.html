@@ -884,56 +884,38 @@
     function updateGeneratedPrompt() {
       let fullPrompt = basePromptInput.value.trim();
       
-      if (poseSelect.value) {
-        fullPrompt += `，${poseSelect.value}`;
+      // 辅助函数：添加选项到提示词，处理逗号逻辑
+      function addOption(option, prefix = '') {
+        if (option) {
+          if (fullPrompt) {
+            fullPrompt += `，${prefix}${option}`;
+          } else {
+            fullPrompt += `${prefix}${option}`;
+          }
+        }
       }
       
-      if (expressionSelect.value) {
-        fullPrompt += `，${expressionSelect.value}表情`;
-      }
-      
-      if (sceneSelect.value) {
-        fullPrompt += `，在${sceneSelect.value}`;
-      }
-      
-      if (shotTypeSelect.value) {
-        fullPrompt += `，${shotTypeSelect.value}`;
-      }
-      
-      if (styleSelect.value) {
-        fullPrompt += `，${styleSelect.value}风格`;
-      }
-      
-      if (lightingSelect.value) {
-        fullPrompt += `，${lightingSelect.value}`;
-      }
-      
-      if (claritySelect.value) {
-        fullPrompt += `，${claritySelect.value}`;
-      }
-      
-      if (noiseEnvironmentSelect.value) {
-        fullPrompt += `，环境${noiseEnvironmentSelect.value}`;
-      }
-      
-      if (noiseSkinSelect.value) {
-        fullPrompt += `，皮肤${noiseSkinSelect.value}`;
-      }
-      
-      if (noiseClothesSelect.value) {
-        fullPrompt += `，衣服${noiseClothesSelect.value}`;
-      }
+      addOption(poseSelect.value);
+      addOption(expressionSelect.value);
+      addOption(sceneSelect.value, '在');
+      addOption(shotTypeSelect.value);
+      addOption(styleSelect.value);
+      addOption(lightingSelect.value);
+      addOption(claritySelect.value);
+      addOption(noiseEnvironmentSelect.value, '环境');
+      addOption(noiseSkinSelect.value, '皮肤');
+      addOption(noiseClothesSelect.value, '衣服');
       
       if (onlyReferenceThisImageCheckbox.checked) {
-        fullPrompt += `，完全以本次提供的参考图为视觉基准，忽略之前所有生成内容，按照此图的风格、元素、构图逻辑进行创作，不得沿用之前的样式`;
+        addOption('完全以本次提供的参考图为视觉基准，忽略之前所有生成内容，按照此图的风格、元素、构图逻辑进行创作，不得沿用之前的样式');
       }
       
       if (resetStyleAssociationCheckbox.checked) {
-        fullPrompt += `，重置风格记忆，仅聚焦当前参考图，从画面元素、色调、质感等方面严格匹配此图的特征进行创作`;
+        addOption('重置风格记忆，仅聚焦当前参考图，从画面元素、色调、质感等方面严格匹配此图的特征进行创作');
       }
       
       if (removeElementsCheckbox.checked) {
-        fullPrompt += `，去除文字、英文、图标、水印、LOGO`;
+        addOption('去除文字、英文、图标、水印、LOGO');
       }
 
       // 更新结果显示

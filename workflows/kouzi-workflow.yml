@@ -1,1 +1,19 @@
-
+name: 扣子+GitHub工作流
+on: [push, pull_request]  # 触发条件：提交/PR
+jobs:
+  code-review-with-kouzi:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4  # 拉取代码
+      - name: 调用扣子API审查代码
+        run: |
+          # 读取提交的代码文件（示例：读取所有.py文件）
+          CODE_CONTENT=$(find . -name "*.py" -type f -exec cat {} \;)
+          # 调用扣子API（替换为你的实际需求：代码审查/文档生成/测试用例等）
+          curl -X POST "https://open.kouzi.com/api/v1/chat/completions" \
+          -H "Content-Type: application/json" \
+          -H "Authorization: Bearer ${{ secrets.KOUZI_API_KEY }}" \
+          -d '{
+            "model": "kouzi-pro",
+            "messages": [{"role":"user","content":"审查以下Python代码，指出问题并优化：'$CODE_CONTENT'"}]
+          }'
